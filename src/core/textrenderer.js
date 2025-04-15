@@ -4,16 +4,13 @@
 @category renderer
 */
 
-export default {
-	preferredElementNodeName : 'PRE',
-	render
-}
-
 const backBuffer = []
 
 let cols, rows
 
-function render(context, buffer) {
+const textRenderer = {
+	preferredElementNodeName: 'PRE',
+	render: (context, buffer) => {
 
 	const element = context.settings.element
 
@@ -131,7 +128,10 @@ function render(context, buffer) {
 		// Write the row
 		element.childNodes[j].innerHTML = html
 	}
-}
+	}
+};
+
+export default textRenderer;
 
 // Compares two cells
 function isSameCell(cellA, cellB) {
