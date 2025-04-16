@@ -1,16 +1,13 @@
-import simpleOutput from './examples/simpleOutput'
 import { PlaygroundSettings } from './types/playground'
 import './css/font.css'
 import './App.css'
 import { PlayCoreAscii } from './components/PlayCoreAscii'
+import torusProgram from './examples/torus'
 
 const settings: PlaygroundSettings = {
   renderer: 'canvas',
-  fps: 30,
+  fps: 60,
   fontFamily: 'Simple Console, monospace',
-  fontSize: '16px',
-  color: '#fff',
-  backgroundColor: '#000',
 }
 
 function App() {
@@ -18,7 +15,7 @@ function App() {
     <div className="app">
       <div className="playground-container">
         <PlayCoreAscii 
-          program={simpleOutput}
+          program={torusProgram}
           settings={settings}
         />
       </div>

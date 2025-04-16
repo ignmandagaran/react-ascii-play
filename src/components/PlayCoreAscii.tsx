@@ -286,7 +286,6 @@ export function PlayCoreAscii({
 
     // Boot program
     if (program.boot) {
-      const context = getContext();
       if (context) {
         program.boot(context, bufferRef.current, {});
       }
@@ -294,12 +293,12 @@ export function PlayCoreAscii({
 
     // Animation frame
     let lastTime = 0;
-    const interval = 1000 / (mergedSettings.fps || 30);
+    const interval = 1000 / mergedSettings.fps!;
 
     const animate = (time: number) => {
       const delta = time - lastTime;
       if (delta < interval) {
-        frameRef.current = requestAnimationFrame(animate);
+        if (!mergedSettings.once) requestAnimationFrame(animate);
         return;
       }
 
@@ -309,7 +308,7 @@ export function PlayCoreAscii({
 
       // Update state
       stateRef.current = {
-        time: time + stateRef.current.time,
+        time,
         frame: stateRef.current.frame + 1,
         cycle: stateRef.current.cycle,
       };
@@ -354,7 +353,7 @@ export function PlayCoreAscii({
       }
 
       lastTime = time - (delta % interval);
-      frameRef.current = requestAnimationFrame(animate);
+      if (!mergedSettings.once) frameRef.current = requestAnimationFrame(animate);
     };
 
     frameRef.current = requestAnimationFrame(animate);
