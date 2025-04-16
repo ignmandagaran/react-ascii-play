@@ -55,3 +55,8 @@ body, html {
     width: 100%;
   }
 }
+
+.simple-console-font {
+  font-family: 'Simple Console', monospace;
+  line-height: 1.2;
+}

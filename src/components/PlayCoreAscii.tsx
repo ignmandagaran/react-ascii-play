@@ -4,7 +4,7 @@ interface RendererElementProps {
   renderer: "text" | "canvas";
   settings?: PlaygroundSettings;
   className?: string;
-  ref?: React.RefObject<HTMLPreElement | HTMLCanvasElement> | ((instance: HTMLPreElement | HTMLCanvasElement | null) => void);
+  ref?: React.RefObject<HTMLPreElement | HTMLCanvasElement | null>;
 }
 
 import { useEffect, useRef, useCallback, useMemo } from "react";
@@ -36,6 +36,7 @@ export function calcMetrics(el: HTMLPreElement | HTMLCanvasElement) {
   const lineHeight = parseFloat(style.getPropertyValue("line-height"));
   let cellWidth;
 
+  
   // If the output element is a canvas 'measureText()' is used
   // else cellWidth is computed 'by hand' (should be the same, in any case)
   if (el.nodeName == "CANVAS") {
@@ -96,13 +97,13 @@ export function PlayCoreAscii({
   program: PlaygroundProgram;
   settings: PlaygroundSettings;
 }) {
-  const [rendererElement, setRendererElement] = useState<
-    HTMLPreElement | HTMLCanvasElement | null
-  >(null);
+  const [rendererReady, setRendererReady] = useState(false);
+  const rendererElementRef = useRef<HTMLPreElement | HTMLCanvasElement | null>(null);
   const rendererRef = useRef<typeof textRenderer | typeof canvasRenderer>(null);
   const bufferRef = useRef<PlaygroundBuffer[]>([]);
   const frameRef = useRef<number>(0);
   const metricsRef = useRef<PlaygroundMetrics | null>(null);
+  const contextRef = useRef<PlaygroundContext | null>(null);
   const stateRef = useRef<PlayCoreState>({
     time: 0,
     frame: 0,
@@ -120,15 +121,16 @@ export function PlayCoreAscii({
 
   // Merge settings with defaults
   const mergedSettings: PlaygroundSettings = useMemo(
-    () => ({ ...defaultSettings, ...settings, element: rendererElement }),
-    [rendererElement, settings]
+    () => ({ ...defaultSettings, ...settings, element: rendererElementRef.current }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [settings, rendererReady]
   );
 
   // Get current context
   const getContext = useCallback((): PlaygroundContext | null => {
-    if (!rendererElement || !metricsRef.current) return null;
+    if (!rendererElementRef.current || !metricsRef.current) return null;
 
-    const rect = rendererElement.getBoundingClientRect();
+    const rect = rendererElementRef.current.getBoundingClientRect();
     const cols =
       mergedSettings.cols ||
       Math.floor(rect.width / metricsRef.current.cellWidth);
@@ -150,7 +152,7 @@ export function PlayCoreAscii({
         fps: mergedSettings.fps as number,
       },
     };
-  }, [rendererElement, mergedSettings]);
+  }, [mergedSettings]);
 
   // Get current cursor
   const getCursor = useCallback((): PlaygroundCursor | null => {
@@ -178,9 +180,9 @@ export function PlayCoreAscii({
   // Handle pointer events
   const handlePointerMove = useCallback(
     (_e: PointerEvent) => {
-      if (!rendererElement) return;
+      if (!rendererElementRef.current) return;
 
-      const rect = rendererElement.getBoundingClientRect();
+      const rect = rendererElementRef.current.getBoundingClientRect();
       pointerRef.current = {
         ...pointerRef.current,
         x: _e.clientX - rect.left,
@@ -197,7 +199,7 @@ export function PlayCoreAscii({
         }
       }
     },
-    [program, getContext, rendererElement, getCursor]
+    [program, getContext, getCursor]
   ) as EventListener;
 
   const handlePointerDown = useCallback(() => {
@@ -226,19 +228,51 @@ export function PlayCoreAscii({
     }
   }, [program, getContext, getCursor]) as EventListener;
 
+  // get context
+  useEffect(() => {
+    if (!rendererElementRef.current) return;
+
+    const rendererElement = rendererElementRef.current;
+
+    const onResize = () => {
+      metricsRef.current = calcMetrics(rendererElement);
+    }
+
+    window.addEventListener('resize', onResize);
+    onResize();
+
+    setRendererReady(true);
+
+    return () => {
+      window.removeEventListener('resize', onResize);
+    }
+  }, []);
+
   // Animation loop
   useEffect(() => {
-    if (!rendererElement) return;
+    if (!rendererElementRef.current || !rendererReady) return;
+
+    // Renderer element
+    const rendererElement = rendererElementRef.current;
 
     // Initialize renderer
     rendererRef.current =
       mergedSettings.renderer === "canvas" ? canvasRenderer : textRenderer;
 
-    // Calculate initial metrics
-    metricsRef.current = calcMetrics(rendererElement);
+    // Apply CSS settings to element
+    for (const s of CSSStyles) {
+      if (mergedSettings[s as keyof PlaygroundSettings])
+        // @ts-expect-error - TODO: check
+        rendererElement.style[s] =
+          mergedSettings[s as keyof PlaygroundSettings];
+    }
 
     // Initialize buffer
-    const context = getContext();
+    const context = contextRef.current;
+
+    // Calculate initial metrics
+    metricsRef.current = calcMetrics(rendererElement);
+    
     if (context) {
       bufferRef.current = new Array(context.cols * context.rows)
         .fill(null)
@@ -303,7 +337,7 @@ export function PlayCoreAscii({
             } else if (typeof out === "string" || typeof out === "undefined") {
               bufferRef.current[idx] = {
                 ...bufferRef.current[idx],
-                char: out as string || " ",
+                char: (out as string) || " ",
               };
             }
           }
@@ -335,25 +369,6 @@ export function PlayCoreAscii({
     rendererElement.addEventListener("pointerup", handlePointerUp, {
       passive: true,
     });
-
-    // apply settings to the element
-    rendererElement.style.backgroundColor =
-      mergedSettings.backgroundColor || "";
-    rendererElement.style.color = mergedSettings.color || "";
-    rendererElement.style.fontFamily = mergedSettings.fontFamily || "";
-    rendererElement.style.fontSize = mergedSettings.fontSize || "";
-    rendererElement.style.fontWeight = mergedSettings.fontWeight || "";
-    rendererElement.style.letterSpacing = mergedSettings.letterSpacing || "";
-    rendererElement.style.lineHeight = mergedSettings.lineHeight || "";
-    rendererElement.style.textAlign = mergedSettings.textAlign || "";
-
-    // Apply CSS settings to element
-    for (const s of CSSStyles) {
-      if (mergedSettings[s as keyof PlaygroundSettings])
-        // @ts-expect-error - TODO: check
-        rendererElement.style[s] =
-          mergedSettings[s as keyof PlaygroundSettings];
-    }
 
     // Handle text selection
     if (!mergedSettings.allowSelect) {
@@ -389,17 +404,15 @@ export function PlayCoreAscii({
     handlePointerMove,
     handlePointerDown,
     handlePointerUp,
-    rendererElement,
     getContext,
     getCursor,
+    rendererReady
   ]);
 
   return (
     <RendererElement
       renderer={mergedSettings.renderer || "text"}
-      ref={(r: HTMLPreElement | HTMLCanvasElement | null) =>
-        setRendererElement(r)
-      }
+      ref={rendererElementRef}
     />
   );
 }
@@ -410,6 +423,7 @@ const RendererElement: React.FC<RendererElementProps> = ({ renderer, ref }) => {
   return (
     <Element
       ref={ref as any}
+      className="simple-console-font"
       style={{
         width: "100%",
         height: "100%",

@@ -5,11 +5,12 @@ import './App.css'
 import { PlayCoreAscii } from './components/PlayCoreAscii'
 
 const settings: PlaygroundSettings = {
-  renderer: 'text',
+  renderer: 'canvas',
   fps: 30,
   fontFamily: 'Simple Console, monospace',
   fontSize: '16px',
   color: '#fff',
+  backgroundColor: '#000',
 }
 
 function App() {

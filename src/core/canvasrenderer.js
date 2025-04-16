@@ -7,7 +7,7 @@
 const canvasRenderer = {
 	preferredElementNodeName: 'CANVAS',
 	render: (context, buffer, settings) => {
-		const canvas = context.element;
+		const canvas = context.settings.element;
 		if (!(canvas instanceof HTMLCanvasElement)) return;
 
 		const ctx = canvas.getContext('2d');
