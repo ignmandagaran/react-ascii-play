@@ -4,7 +4,7 @@ interface RendererElementProps {
   renderer: "text" | "canvas";
   settings?: PlaygroundSettings;
   className?: string;
-  ref?: React.RefObject<HTMLPreElement | HTMLCanvasElement>;
+  ref?: React.RefObject<HTMLPreElement | HTMLCanvasElement> | ((instance: HTMLPreElement | HTMLCanvasElement | null) => void);
 }
 
 import { useEffect, useRef, useCallback, useMemo } from "react";
@@ -23,6 +23,7 @@ import React from "react";
 // Calcs width (fract), height, aspect of a monospaced char
 // assuming that the CSS font-family is a monospaced font.
 // Returns a mutable object.
+// eslint-disable-next-line react-refresh/only-export-components
 export function calcMetrics(el: HTMLPreElement | HTMLCanvasElement) {
   const style = getComputedStyle(el);
 
@@ -30,7 +31,7 @@ export function calcMetrics(el: HTMLPreElement | HTMLCanvasElement) {
   // the style and font family should be set anyways.
   const fontFamily = style.getPropertyValue("font-family");
   const fontSize = parseFloat(style.getPropertyValue("font-size"));
-  // Can’t rely on computed lineHeight since Safari 14.1
+  // Can't rely on computed lineHeight since Safari 14.1
   // See:  https://bugs.webkit.org/show_bug.cgi?id=225695
   const lineHeight = parseFloat(style.getPropertyValue("line-height"));
   let cellWidth;
@@ -69,6 +70,18 @@ const defaultSettings: PlaygroundSettings = {
   renderer: "text", // can be 'canvas', anything else falls back to 'text'
   allowSelect: false, // allows selection of the rendered element
 };
+
+// CSS styles which can be passed to the container element via settings
+const CSSStyles: (keyof CSSStyleDeclaration)[] = [
+  "backgroundColor",
+  "color",
+  "fontFamily",
+  "fontSize",
+  "fontWeight",
+  "letterSpacing",
+  "lineHeight",
+  "textAlign",
+];
 
 interface PlayCoreState {
   time: number;
@@ -185,7 +198,7 @@ export function PlayCoreAscii({
       }
     },
     [program, getContext, rendererElement, getCursor]
-  );
+  ) as EventListener;
 
   const handlePointerDown = useCallback(() => {
     pointerRef.current.pressed = true;
@@ -198,7 +211,7 @@ export function PlayCoreAscii({
         program.pointerDown(context, cursor, bufferRef.current);
       }
     }
-  }, [program, getContext, getCursor]);
+  }, [program, getContext, getCursor]) as EventListener;
 
   const handlePointerUp = useCallback(() => {
     pointerRef.current.pressed = false;
@@ -211,7 +224,7 @@ export function PlayCoreAscii({
         program.pointerUp(context, cursor, bufferRef.current);
       }
     }
-  }, [program, getContext, getCursor]);
+  }, [program, getContext, getCursor]) as EventListener;
 
   // Animation loop
   useEffect(() => {
@@ -277,7 +290,8 @@ export function PlayCoreAscii({
           const offs = j * context.cols;
           for (let i = 0; i < context.cols; i++) {
             const idx = i + offs;
-            const out = program.main(
+            let out: string | PlaygroundBuffer | void | undefined = undefined;
+            out = program.main(
               { x: i, y: j, index: idx },
               context,
               cursor,
@@ -289,7 +303,7 @@ export function PlayCoreAscii({
             } else if (typeof out === "string" || typeof out === "undefined") {
               bufferRef.current[idx] = {
                 ...bufferRef.current[idx],
-                char: out || " ",
+                char: out as string || " ",
               };
             }
           }
@@ -333,6 +347,14 @@ export function PlayCoreAscii({
     rendererElement.style.lineHeight = mergedSettings.lineHeight || "";
     rendererElement.style.textAlign = mergedSettings.textAlign || "";
 
+    // Apply CSS settings to element
+    for (const s of CSSStyles) {
+      if (mergedSettings[s as keyof PlaygroundSettings])
+        // @ts-expect-error - TODO: check
+        rendererElement.style[s] =
+          mergedSettings[s as keyof PlaygroundSettings];
+    }
+
     // Handle text selection
     if (!mergedSettings.allowSelect) {
       rendererElement.style.userSelect = "none";
@@ -347,9 +369,18 @@ export function PlayCoreAscii({
         cancelAnimationFrame(frameRef.current);
       }
       if (rendererElement) {
-        rendererElement.removeEventListener("pointermove", handlePointerMove);
-        rendererElement.removeEventListener("pointerdown", handlePointerDown);
-        rendererElement.removeEventListener("pointerup", handlePointerUp);
+        rendererElement.removeEventListener(
+          "pointermove",
+          handlePointerMove as EventListener
+        );
+        rendererElement.removeEventListener(
+          "pointerdown",
+          handlePointerDown as EventListener
+        );
+        rendererElement.removeEventListener(
+          "pointerup",
+          handlePointerUp as EventListener
+        );
       }
     };
   }, [
@@ -366,20 +397,19 @@ export function PlayCoreAscii({
   return (
     <RendererElement
       renderer={mergedSettings.renderer || "text"}
-      ref={(r: HTMLPreElement | HTMLCanvasElement | null) => setRendererElement(r)}
+      ref={(r: HTMLPreElement | HTMLCanvasElement | null) =>
+        setRendererElement(r)
+      }
     />
   );
 }
 
-const RendererElement: React.FC<RendererElementProps> = ({
-  renderer,
-  ref,
-}) => {
+const RendererElement: React.FC<RendererElementProps> = ({ renderer, ref }) => {
   const Element = renderer === "canvas" ? "canvas" : "pre";
 
   return (
     <Element
-      ref={ref as React.RefObject<HTMLPreElement | HTMLCanvasElement>}
+      ref={ref as any}
       style={{
         width: "100%",
         height: "100%",
