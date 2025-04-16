@@ -147,7 +147,7 @@ export function PlayCoreAscii({
       settings: mergedSettings,
       runtime: {
         cycle: stateRef.current.cycle,
-        fps: mergedSettings.fps || 30,
+        fps: mergedSettings.fps as number,
       },
     };
   }, [rendererElement, mergedSettings]);
@@ -414,7 +414,6 @@ const RendererElement: React.FC<RendererElementProps> = ({ renderer, ref }) => {
         width: "100%",
         height: "100%",
         margin: 0,
-        padding: "1rem",
         boxSizing: "border-box",
         overflow: "hidden",
       }}
