@@ -1,4 +1,4 @@
-import { PlaygroundContext, PlaygroundBuffer, PlaygroundSettings } from '../types/playground'
+import { PlaygroundContext, PlaygroundBuffer, PlaygroundSettings } from '../types'
 
 declare const textRenderer: {
   preferredElementNodeName: 'PRE'

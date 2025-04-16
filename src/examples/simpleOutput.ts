@@ -1,4 +1,4 @@
-import { PlaygroundProgram } from "../types/playground";
+import { PlaygroundProgram } from "../types";
 
 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ.:!?";
 

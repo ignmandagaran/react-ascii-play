@@ -2,7 +2,7 @@ import { useState } from "react";
 
 interface RendererElementProps {
   renderer: "text" | "canvas";
-  settings?: PlaygroundSettings;
+  settings?: PlayCoreAsciiSettings;
   className?: string;
   ref?: React.RefObject<HTMLPreElement | HTMLCanvasElement | null>;
 }
@@ -11,13 +11,14 @@ import { useEffect, useRef, useCallback, useMemo } from "react";
 import textRenderer from "../core/textrenderer";
 import canvasRenderer from "../core/canvasrenderer";
 import {
-  PlaygroundSettings,
-  PlaygroundProgram,
-  PlaygroundContext,
-  PlaygroundCursor,
-  PlaygroundBuffer,
-  PlaygroundMetrics,
-} from "../types/playground";
+  PlayCoreAsciiSettings,
+  PlayCoreAsciiProgram,
+  PlayCoreAsciiContext,
+  PlayCoreAsciiCursor,
+  PlayCoreAsciiBuffer,
+  PlayCoreAsciiMetrics,
+} from "../types";
+import FPS from "../core/fps";
 import React from "react";
 
 // Calcs width (fract), height, aspect of a monospaced char
@@ -63,7 +64,7 @@ export function calcMetrics(el: HTMLPreElement | HTMLCanvasElement) {
   return metrics;
 }
 
-const defaultSettings: PlaygroundSettings = {
+const defaultSettings: PlayCoreAsciiSettings = {
   cols: 0, // number of columns, 0 is equivalent to 'auto'
   rows: 0, // number of columns, 0 is equivalent to 'auto'
   once: false, // if set to true the renderer will run only once
@@ -90,20 +91,25 @@ interface PlayCoreState {
   cycle: number;
 }
 
+interface PlayCoreAsciiProps {
+  program: PlayCoreAsciiProgram;
+  settings: PlayCoreAsciiSettings;
+  className?: string;
+}
+
 export function PlayCoreAscii({
   program,
   settings,
-}: {
-  program: PlaygroundProgram;
-  settings: PlaygroundSettings;
-}) {
+  className,
+}: PlayCoreAsciiProps) {
   const [rendererReady, setRendererReady] = useState(false);
   const rendererElementRef = useRef<HTMLPreElement | HTMLCanvasElement | null>(null);
   const rendererRef = useRef<typeof textRenderer | typeof canvasRenderer>(null);
-  const bufferRef = useRef<PlaygroundBuffer[]>([]);
+  const bufferRef = useRef<PlayCoreAsciiBuffer[]>([]);
   const frameRef = useRef<number>(0);
-  const metricsRef = useRef<PlaygroundMetrics | null>(null);
-  const contextRef = useRef<PlaygroundContext | null>(null);
+  const metricsRef = useRef<PlayCoreAsciiMetrics | null>(null);
+  const contextRef = useRef<PlayCoreAsciiContext | null>(null);
+  const fpsRef = useRef(new FPS());
   const stateRef = useRef<PlayCoreState>({
     time: 0,
     frame: 0,
@@ -120,14 +126,14 @@ export function PlayCoreAscii({
   });
 
   // Merge settings with defaults
-  const mergedSettings: PlaygroundSettings = useMemo(
+  const mergedSettings: PlayCoreAsciiSettings = useMemo(
     () => ({ ...defaultSettings, ...settings, element: rendererElementRef.current }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [settings, rendererReady]
   );
 
   // Get current context
-  const getContext = useCallback((): PlaygroundContext | null => {
+  const getContext = useCallback((): PlayCoreAsciiContext | null => {
     if (!rendererElementRef.current || !metricsRef.current) return null;
 
     const rect = rendererElementRef.current.getBoundingClientRect();
@@ -149,13 +155,13 @@ export function PlayCoreAscii({
       settings: mergedSettings,
       runtime: {
         cycle: stateRef.current.cycle,
-        fps: mergedSettings.fps as number,
+        fps: fpsRef.current.fps,
       },
     };
   }, [mergedSettings]);
 
   // Get current cursor
-  const getCursor = useCallback((): PlaygroundCursor | null => {
+  const getCursor = useCallback((): PlayCoreAsciiCursor | null => {
     const context = getContext();
     if (!context || !metricsRef.current) return null;
 
@@ -261,10 +267,10 @@ export function PlayCoreAscii({
 
     // Apply CSS settings to element
     for (const s of CSSStyles) {
-      if (mergedSettings[s as keyof PlaygroundSettings])
+      if (mergedSettings[s as keyof PlayCoreAsciiSettings])
         // @ts-expect-error - TODO: check
         rendererElement.style[s] =
-          mergedSettings[s as keyof PlaygroundSettings];
+          mergedSettings[s as keyof PlayCoreAsciiSettings];
     }
 
     // Initialize buffer
@@ -304,6 +310,9 @@ export function PlayCoreAscii({
 
       const context = getContext();
       const cursor = getCursor();
+
+      fpsRef.current.update(time)
+
       if (!context || !cursor) return;
 
       // Update state
@@ -323,7 +332,7 @@ export function PlayCoreAscii({
           const offs = j * context.cols;
           for (let i = 0; i < context.cols; i++) {
             const idx = i + offs;
-            let out: string | PlaygroundBuffer | void | undefined = undefined;
+            let out: string | PlayCoreAsciiBuffer | void | undefined = undefined;
             out = program.main(
               { x: i, y: j, index: idx },
               context,
@@ -410,19 +419,20 @@ export function PlayCoreAscii({
 
   return (
     <RendererElement
+      className={className}
       renderer={mergedSettings.renderer || "text"}
       ref={rendererElementRef}
     />
   );
 }
 
-const RendererElement: React.FC<RendererElementProps> = ({ renderer, ref }) => {
+const RendererElement: React.FC<RendererElementProps> = ({ renderer, ref, className }) => {
   const Element = renderer === "canvas" ? "canvas" : "pre";
 
   return (
     <Element
       ref={ref as any}
-      className="simple-console-font"
+      className={className}
       style={{
         width: "100%",
         height: "100%",
