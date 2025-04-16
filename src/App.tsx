@@ -1,8 +1,8 @@
-import { AsciiPlayground } from './components/AsciiPlayground'
 import simpleOutput from './examples/simpleOutput'
 import { PlaygroundSettings } from './types/playground'
 import './css/font.css'
 import './App.css'
+import { PlayCoreAscii } from './components/PlayCoreAscii'
 
 const settings: PlaygroundSettings = {
   renderer: 'text',
@@ -16,7 +16,7 @@ function App() {
   return (
     <div className="app">
       <div className="playground-container">
-        <AsciiPlayground 
+        <PlayCoreAscii 
           program={simpleOutput}
           settings={settings}
         />

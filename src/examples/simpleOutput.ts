@@ -3,12 +3,6 @@ import { PlaygroundProgram } from "../types/playground";
 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ.:!?";
 
 const simpleOutput: PlaygroundProgram = {
-  settings: {
-    fps: 30,
-    fontFamily: "Simple Console, monospace",
-    fontSize: "16px",
-    color: "#fff",
-  },
   main: (cell, context) => {
     const { x, y } = cell;
     const f = context.frame;
