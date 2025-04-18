@@ -11,7 +11,9 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "clean": "turbo clean",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "version:packages": "pnpm changeset version",
+    "release": "pnpm build && pnpm changeset publish"
   },
   "devDependencies": {
     "@turbo/gen": "^2.5.0",
