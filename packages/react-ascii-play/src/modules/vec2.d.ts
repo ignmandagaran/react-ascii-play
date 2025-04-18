@@ -8,7 +8,7 @@ export interface Vec2 {
 }
 
 export interface Vec2Module {
-    vec2(x: number, y: number): Vec2;
+    create(x: number, y: number): Vec2;
     copy(a: Vec2, out?: Vec2): Vec2;
     add(a: Vec2, b: Vec2, out?: Vec2): Vec2;
     sub(a: Vec2, b: Vec2, out?: Vec2): Vec2;

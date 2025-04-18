@@ -13,13 +13,13 @@
 */
 
 // Creates a vector
-export function vec2(x, y) {
+export function create(x, y) {
 	return {x, y}
 }
 
 // Copies a vector
 export function copy(a, out) {
-	out = out || vec2(0, 0)
+	out = out || create(0, 0)
 
 	out.x = a.x
 	out.y = a.y
@@ -29,7 +29,7 @@ export function copy(a, out) {
 
 // Adds two vectors
 export function add(a, b, out) {
-	out = out || vec2(0, 0)
+	out = out || create(0, 0)
 
 	out.x = a.x + b.x
 	out.y = a.y + b.y
@@ -39,7 +39,7 @@ export function add(a, b, out) {
 
 // Subtracts two vectors
 export function sub(a, b, out) {
-	out = out || vec2(0, 0)
+	out = out || create(0, 0)
 
 	out.x = a.x - b.x
 	out.y = a.y - b.y
@@ -49,7 +49,7 @@ export function sub(a, b, out) {
 
 // Multiplies a vector by another vector (component-wise)
 export function mul(a, b, out) {
-	out = out || vec2(0, 0)
+	out = out || create(0, 0)
 
 	out.x = a.x * b.x
 	out.y = a.y * b.y
@@ -59,7 +59,7 @@ export function mul(a, b, out) {
 
 // Divides a vector by another vector (component-wise)
 export function div(a, b, out) {
-	out = out || vec2(0, 0)
+	out = out || create(0, 0)
 
 	out.x = a.x / b.x
 	out.y = a.y / b.y
@@ -69,7 +69,7 @@ export function div(a, b, out) {
 
 // Adds a scalar to a vector
 export function addN(a, k, out) {
-	out = out || vec2(0, 0)
+	out = out || create(0, 0)
 
 	out.x = a.x + k
 	out.y = a.y + k
@@ -79,7 +79,7 @@ export function addN(a, k, out) {
 
 // Subtracts a scalar from a vector
 export function subN(a, k, out) {
-	out = out || vec2(0, 0)
+	out = out || create(0, 0)
 
 	out.x = a.x - k
 	out.y = a.y - k
@@ -89,7 +89,7 @@ export function subN(a, k, out) {
 
 // Mutiplies a vector by a scalar
 export function mulN(a, k, out) {
-	out = out || vec2(0, 0)
+	out = out || create(0, 0)
 
 	out.x = a.x * k
 	out.y = a.y * k
@@ -99,7 +99,7 @@ export function mulN(a, k, out) {
 
 // Divides a vector by a scalar
 export function divN(a, k, out) {
-	out = out || vec2(0, 0)
+	out = out || create(0, 0)
 
 	out.x = a.x / k
 	out.y = a.y / k
@@ -140,7 +140,7 @@ export function distSq(a, b) {
 
 // Divides a vector by its Euclidean length and returns the quotient
 export function norm(a, out) {
-	out = out || vec2(0, 0)
+	out = out || create(0, 0)
 
 	const l = length(a)
 	if (l > 0.00001) {
@@ -156,7 +156,7 @@ export function norm(a, out) {
 
 // Negates a vector
 export function neg(v, out) {
-	out = out || vec2(0, 0)
+	out = out || create(0, 0)
 
 	out.x = -v.x
 	out.y = -v.y
@@ -166,7 +166,7 @@ export function neg(v, out) {
 
 // Rotates a vector
 export function rot(a, ang, out) {
-	out = out || vec2(0, 0)
+	out = out || create(0, 0)
 
 	const s = Math.sin(ang)
 	const c = Math.cos(ang)
@@ -179,7 +179,7 @@ export function rot(a, ang, out) {
 
 // Performs linear interpolation on two vectors
 export function mix(a, b, t, out) {
-	out = out || vec2(0, 0)
+	out = out || create(0, 0)
 
 	out.x = (1 - t) * a.x + t * b.x
 	out.y = (1 - t) * a.y + t * b.y
@@ -189,7 +189,7 @@ export function mix(a, b, t, out) {
 
 // Computes the abs of a vector (component-wise)
  export function abs(a, out) {
-	out = out || vec2(0, 0)
+	out = out || create(0, 0)
 
 	out.x = Math.abs(a.x)
 	out.y = Math.abs(a.y)
@@ -199,7 +199,7 @@ export function mix(a, b, t, out) {
 
 // Computes the max of two vectors (component-wise)
 export function max(a, b, out) {
-	out = out || vec2(0, 0)
+	out = out || create(0, 0)
 
 	out.x = Math.max(a.x, b.x)
 	out.y = Math.max(a.y, b.y)
@@ -209,7 +209,7 @@ export function max(a, b, out) {
 
 // Computes the min of two vectors (component-wise)
 export function min(a, b, out) {
-	out = out || vec2(0, 0)
+	out = out || create(0, 0)
 
 	out.x = Math.min(a.x, b.x)
 	out.y = Math.min(a.y, b.y)
@@ -219,7 +219,7 @@ export function min(a, b, out) {
 
 // Returns the fractional part of the vector (component-wise)
 export function fract(a, out) {
-	out = out || vec2(0, 0)
+	out = out || create(0, 0)
 	out.x = a.x - Math.floor(a.x)
 	out.y = a.y - Math.floor(a.y)
 	return out
@@ -227,7 +227,7 @@ export function fract(a, out) {
 
 // Returns the floored vector (component-wise)
 export function floor(a, out) {
-	out = out || vec2(0, 0)
+	out = out || create(0, 0)
 	out.x = Math.floor(a.x)
 	out.y = Math.floor(a.y)
 	return out
@@ -235,7 +235,7 @@ export function floor(a, out) {
 
 // Returns the ceiled vector (component-wise)
 export function ceil(a, out) {
-	out = out || vec2(0, 0)
+	out = out || create(0, 0)
 	out.x = Math.ceil(a.x)
 	out.y = Math.ceil(a.y)
 	return out
@@ -243,7 +243,7 @@ export function ceil(a, out) {
 
 // Returns the rounded vector (component-wise)
 export function round(a, out) {
-	out = out || vec2(0, 0)
+	out = out || create(0, 0)
 	out.x = Math.round(a.x)
 	out.y = Math.round(a.y)
 	return out

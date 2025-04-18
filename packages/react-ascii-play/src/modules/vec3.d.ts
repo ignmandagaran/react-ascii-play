@@ -7,7 +7,7 @@ export interface Vec3 {
 }
 
 export interface Vec3Module {
-    vec3(x: number, y: number, z: number): Vec3;
+    create(x: number, y: number, z: number): Vec3;
     copy(a: Vec3, out?: Vec3): Vec3;
     add(a: Vec3, b: Vec3, out?: Vec3): Vec3;
     sub(a: Vec3, b: Vec3, out?: Vec3): Vec3;

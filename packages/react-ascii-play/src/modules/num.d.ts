@@ -7,13 +7,3 @@ export function step(edge: number, x: number): 0 | 1;
 export function smoothstep(edge0: number, edge1: number, t: number): number;
 export function smootherstep(edge0: number, edge1: number, t: number): number;
 export function mod(a: number, b: number): number;
-declare namespace _default {
-    export { map };
-    export { fract };
-    export { clamp };
-    export { sign };
-    export { mix };
-    export { smoothstep };
-    export { smootherstep };
-}
-export default _default;
