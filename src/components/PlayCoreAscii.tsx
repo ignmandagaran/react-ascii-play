@@ -37,7 +37,6 @@ export function calcMetrics(el: HTMLPreElement | HTMLCanvasElement) {
   const lineHeight = parseFloat(style.getPropertyValue("line-height"));
   let cellWidth;
 
-  
   // If the output element is a canvas 'measureText()' is used
   // else cellWidth is computed 'by hand' (should be the same, in any case)
   if (el.nodeName == "CANVAS") {
@@ -103,10 +102,12 @@ export function PlayCoreAscii({
   className,
 }: PlayCoreAsciiProps) {
   const [rendererReady, setRendererReady] = useState(false);
-  const rendererElementRef = useRef<HTMLPreElement | HTMLCanvasElement | null>(null);
+  const rendererElementRef = useRef<HTMLPreElement | HTMLCanvasElement | null>(
+    null
+  );
   const rendererRef = useRef<typeof textRenderer | typeof canvasRenderer>(null);
   const bufferRef = useRef<PlayCoreAsciiBuffer[]>([]);
-  const frameRef = useRef<number>(0);
+  const frameRef = useRef<number[]>([]);
   const metricsRef = useRef<PlayCoreAsciiMetrics | null>(null);
   const contextRef = useRef<PlayCoreAsciiContext | null>(null);
   const fpsRef = useRef(new FPS());
@@ -127,7 +128,11 @@ export function PlayCoreAscii({
 
   // Merge settings with defaults
   const mergedSettings: PlayCoreAsciiSettings = useMemo(
-    () => ({ ...defaultSettings, ...settings, element: rendererElementRef.current }),
+    () => ({
+      ...defaultSettings,
+      ...settings,
+      element: rendererElementRef.current,
+    }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [settings, rendererReady]
   );
@@ -249,17 +254,20 @@ export function PlayCoreAscii({
 
     const onResize = () => {
       metricsRef.current = calcMetrics(rendererElement);
-    }
+    };
 
-    window.addEventListener('resize', onResize);
+    window.addEventListener("resize", onResize, { passive: true });
+    document.addEventListener("visibilitychange", handleVisibilityChange, {
+      passive: true,
+    });
     onResize();
-
     setRendererReady(true);
 
     return () => {
-      window.removeEventListener('resize', onResize);
-    }
-  }, []);
+      window.removeEventListener("resize", onResize);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [handleVisibilityChange]);
 
   // Animation loop
   useEffect(() => {
@@ -285,7 +293,7 @@ export function PlayCoreAscii({
 
     // Calculate initial metrics
     metricsRef.current = calcMetrics(rendererElement);
-    
+
     if (context) {
       bufferRef.current = new Array(context.cols * context.rows)
         .fill(null)
@@ -309,16 +317,18 @@ export function PlayCoreAscii({
     const interval = 1000 / mergedSettings.fps!;
 
     const animate = (time: number) => {
+      console.log('render')
       const delta = time - lastTime;
       if (delta < interval) {
-        if (!mergedSettings.once) requestAnimationFrame(animate);
+        if (!mergedSettings.once)
+          frameRef.current.push(requestAnimationFrame(animate));
         return;
       }
 
       const context = getContext();
       const cursor = getCursor();
 
-      fpsRef.current.update(time)
+      fpsRef.current.update(time);
 
       if (!context || !cursor) return;
 
@@ -339,7 +349,8 @@ export function PlayCoreAscii({
           const offs = j * context.cols;
           for (let i = 0; i < context.cols; i++) {
             const idx = i + offs;
-            let out: string | PlayCoreAsciiBuffer | void | undefined = undefined;
+            let out: string | PlayCoreAsciiBuffer | void | undefined =
+              undefined;
             out = program.main(
               { x: i, y: j, index: idx },
               context,
@@ -369,10 +380,11 @@ export function PlayCoreAscii({
       }
 
       lastTime = time - (delta % interval);
-      if (!mergedSettings.once) frameRef.current = requestAnimationFrame(animate);
+      if (!mergedSettings.once)
+        frameRef.current.push(requestAnimationFrame(animate));
     };
 
-    frameRef.current = requestAnimationFrame(animate);
+    frameRef.current.push(requestAnimationFrame(animate));
 
     // Add event listeners
     rendererElement.addEventListener("pointermove", handlePointerMove, {
@@ -384,9 +396,6 @@ export function PlayCoreAscii({
     rendererElement.addEventListener("pointerup", handlePointerUp, {
       passive: true,
     });
-    document.addEventListener("visibilitychange", handleVisibilityChange, {
-      passive: true,
-    });
 
     // Handle text selection
     if (!mergedSettings.allowSelect) {
@@ -396,11 +405,14 @@ export function PlayCoreAscii({
       rendererElement.style.userSelect = "none";
     }
 
+    const cleanupRafs = () => {
+      frameRef.current.forEach((id) => cancelAnimationFrame(id));
+      frameRef.current = [];
+    };
+
     // Cleanup
     return () => {
-      if (frameRef.current) {
-        cancelAnimationFrame(frameRef.current);
-      }
+      cleanupRafs();
       if (rendererElement) {
         rendererElement.removeEventListener(
           "pointermove",
@@ -414,13 +426,19 @@ export function PlayCoreAscii({
           "pointerup",
           handlePointerUp as EventListener
         );
-        document.removeEventListener(
-          "visibilitychange",
-          handleVisibilityChange as EventListener
-        );
       }
     };
-  }, [program, mergedSettings, handlePointerMove, handlePointerDown, handlePointerUp, getContext, getCursor, rendererReady, handleVisibilityChange]);
+  }, [
+    program,
+    mergedSettings,
+    handlePointerMove,
+    handlePointerDown,
+    handlePointerUp,
+    getContext,
+    getCursor,
+    rendererReady,
+    handleVisibilityChange,
+  ]);
 
   return (
     <RendererElement
@@ -431,7 +449,11 @@ export function PlayCoreAscii({
   );
 }
 
-const RendererElement: React.FC<RendererElementProps> = ({ renderer, ref, className }) => {
+const RendererElement: React.FC<RendererElementProps> = ({
+  renderer,
+  ref,
+  className,
+}) => {
   const Element = renderer === "canvas" ? "canvas" : "pre";
 
   return (
