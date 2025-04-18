@@ -20,12 +20,12 @@ importers:
 
   apps/examples:
     dependencies:
-      '@react-play.core/core':
-        specifier: workspace:*
-        version: link:../../packages/react-play.core
       react:
         specifier: ^19.0.0
         version: 19.1.0
+      react-ascii-play:
+        specifier: workspace:*
+        version: link:../../packages/react-ascii-play
       react-dom:
         specifier: ^19.0.0
         version: 19.1.0(react@19.1.0)
@@ -49,7 +49,7 @@ importers:
         specifier: ^6.2.0
         version: 6.3.2(@types/node@22.14.1)
 
-  packages/react-play.core:
+  packages/react-ascii-play:
     dependencies:
       react:
         specifier: ^19.0.0

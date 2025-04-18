@@ -1,5 +1,5 @@
 {
-  "name": "@react-play.core/web",
+  "name": "@react-ascii-play/examples",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -11,7 +11,7 @@
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
   "dependencies": {
-    "@react-play.core/core": "workspace:*",
+    "react-ascii-play": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

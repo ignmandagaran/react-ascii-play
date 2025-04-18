@@ -1,5 +1,5 @@
 {
-  "name": "react-play.core-monorepo",
+  "name": "react-ascii-play-monorepo",
   "private": true,
   "version": "0.0.0",
   "workspaces": [

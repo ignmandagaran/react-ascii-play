@@ -7,15 +7,14 @@
 @desc   The cursor controls box thickness and exp
 */
 
-import { sdSegment, vec2, vec3, map, drawInfo } from "@react-play.core/core";
+import { sdf, vec2, vec3, num, drawInfo } from "react-ascii-play";
 
 export const settings = { fps: 60 };
 
 const density = " -=+abcdX";
 
-// Shorthands
-const { vec3 } = v3;
-const { vec2 } = v2;
+const { map } = num;
+const { sdSegment } = sdf;
 const { sin, floor, abs, exp, min } = Math;
 
 // Lookup table for the background
@@ -46,7 +45,7 @@ for (let i = 0; i < majorSegments; i++) {
     const y = (R + r * Math.cos(phi)) * Math.sin(theta);
     const z = r * Math.sin(phi);
 
-    vertices.push(vec3(x, y, z));
+    vertices.push(vec3.vec3(x, y, z));
 
     // Connect to next minor segment
     const current = i * minorSegments + j;
@@ -66,20 +65,20 @@ const torus = {
 
 const boxProj = [];
 
-const bgMatrixDim = vec2(bgMatrix[0].length, bgMatrix.length);
+const bgMatrixDim = vec2.vec2(bgMatrix[0].length, bgMatrix.length);
 
 const torusProgram = {
   pre(context) {
     const t = context.time * 0.01;
-    const rot = vec3(t * 0.11, t * 0.13, -t * 0.15);
+    const rot = vec3.vec3(t * 0.11, t * 0.13, -t * 0.15);
     const d = 2;
     const zOffs = map(sin(t * 0.12), -1, 1, -2.5, -6);
     for (let i = 0; i < torus.vertices.length; i++) {
-      const v = v3.copy(torus.vertices[i]);
-      let vt = v3.rotX(v, rot.x);
-      vt = v3.rotY(vt, rot.y);
-      vt = v3.rotZ(vt, rot.z);
-      boxProj[i] = v2.mulN(vec2(vt.x, vt.y), d / (vt.z - zOffs));
+      const v = vec3.copy(torus.vertices[i]);
+      let vt = vec3.rotX(v, rot.x);
+      vt = vec3.rotY(vt, rot.y);
+      vt = vec3.rotZ(vt, rot.z);
+      boxProj[i] = vec2.mulN(vec2.vec2(vt.x, vt.y), d / (vt.z - zOffs));
     }
   },
   main(coord, context, cursor) {
@@ -118,7 +117,7 @@ const torusProgram = {
     }
   },
   post(context, cursor, buffer) {
-    drawInfo(context, cursor, buffer);
+    drawInfo.drawInfo(context, cursor, buffer);
   },
 };
 

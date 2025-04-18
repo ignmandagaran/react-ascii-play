@@ -1,4 +1,4 @@
-import { PlayCoreAsciiSettings, PlayCoreAscii } from "@react-play.core/core";
+import { PlayCoreAsciiSettings, PlayCoreAscii } from "react-ascii-play";
 import "./css/font.css";
 import "./App.css";
 import torusProgram from "./examples/torus";
