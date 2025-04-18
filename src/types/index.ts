@@ -45,6 +45,12 @@ export interface PlayCoreAsciiBuffer {
   fontWeight?: string;
 }
 
+export interface PlayCoreState {
+  time: number;
+  frame: number;
+  cycle: number;
+}
+
 export interface PlayCoreAsciiSettings {
   cols?: number;
   rows?: number;

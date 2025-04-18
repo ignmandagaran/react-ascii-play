@@ -17,6 +17,7 @@ import {
   PlayCoreAsciiCursor,
   PlayCoreAsciiBuffer,
   PlayCoreAsciiMetrics,
+  PlayCoreState,
 } from "../types";
 import FPS from "../core/fps";
 import React from "react";
@@ -84,22 +85,19 @@ const CSSStyles: (keyof CSSStyleDeclaration)[] = [
   "textAlign",
 ];
 
-interface PlayCoreState {
-  time: number;
-  frame: number;
-  cycle: number;
-}
-
 interface PlayCoreAsciiProps {
   program: PlayCoreAsciiProgram;
   settings: PlayCoreAsciiSettings;
   className?: string;
+  // delegate frameloop to the parent
+  loop?: (callback: (time: number) => void) => void;
 }
 
 export function PlayCoreAscii({
   program,
   settings,
   className,
+  loop,
 }: PlayCoreAsciiProps) {
   const [rendererReady, setRendererReady] = useState(false);
   const rendererElementRef = useRef<HTMLPreElement | HTMLCanvasElement | null>(
@@ -317,11 +315,15 @@ export function PlayCoreAscii({
     const interval = 1000 / mergedSettings.fps!;
 
     const animate = (time: number) => {
-      console.log('render')
       const delta = time - lastTime;
       if (delta < interval) {
-        if (!mergedSettings.once)
-          frameRef.current.push(requestAnimationFrame(animate));
+        if (!mergedSettings.once) {
+          if (typeof loop === "function") {
+            loop(animate);
+          } else {
+            frameRef.current.push(requestAnimationFrame(animate));
+          }
+        }
         return;
       }
 
@@ -380,11 +382,20 @@ export function PlayCoreAscii({
       }
 
       lastTime = time - (delta % interval);
-      if (!mergedSettings.once)
-        frameRef.current.push(requestAnimationFrame(animate));
+      if (!mergedSettings.once) {
+        if (typeof loop === "function") {
+          loop(animate);
+        } else {
+          frameRef.current.push(requestAnimationFrame(animate));
+        }
+      }
     };
 
-    frameRef.current.push(requestAnimationFrame(animate));
+    if (typeof loop === "function") {
+      loop(animate);
+    } else {
+      frameRef.current.push(requestAnimationFrame(animate));
+    }
 
     // Add event listeners
     rendererElement.addEventListener("pointermove", handlePointerMove, {
@@ -438,6 +449,7 @@ export function PlayCoreAscii({
     getCursor,
     rendererReady,
     handleVisibilityChange,
+    loop,
   ]);
 
   return (
