@@ -144,6 +144,8 @@ export function PlayCoreAscii({
     [settings, rendererReady]
   );
 
+  const userDataRef = useRef<Record<string, unknown>>({});
+
   // Get current context
   const getContext = useCallback((): PlayCoreAsciiContext | null => {
     if (!rendererElementRef.current || !metricsRef.current) return null;
@@ -326,7 +328,7 @@ export function PlayCoreAscii({
     // Boot program
     if (program.boot) {
       if (context) {
-        program.boot(context, bufferRef.current, {});
+        program.boot(context, bufferRef.current, userDataRef.current);
       }
     }
 
@@ -363,7 +365,7 @@ export function PlayCoreAscii({
 
       // Run program steps
       if (program.pre) {
-        program.pre(context, cursor, bufferRef.current, {});
+        program.pre(context, cursor, bufferRef.current, userDataRef.current);
       }
 
       if (program.main) {
@@ -378,7 +380,7 @@ export function PlayCoreAscii({
               context,
               cursor,
               bufferRef.current,
-              {}
+              userDataRef.current
             );
             if (typeof out === "object" && out !== null) {
               bufferRef.current[idx] = { ...bufferRef.current[idx], ...out };
@@ -393,7 +395,7 @@ export function PlayCoreAscii({
       }
 
       if (program.post) {
-        program.post(context, cursor, bufferRef.current, {});
+        program.post(context, cursor, bufferRef.current, userDataRef.current);
       }
 
       // Render
