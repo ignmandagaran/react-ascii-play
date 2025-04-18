@@ -39,7 +39,7 @@ export interface PlayCoreAsciiCell {
 }
 
 export interface PlayCoreAsciiBuffer {
-  char: string;
+  char: string | number;
   color?: string;
   backgroundColor?: string;
   fontWeight?: string;

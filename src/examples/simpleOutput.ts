@@ -1,8 +1,8 @@
-import { PlaygroundProgram } from "../types";
+import { PlayCoreAsciiProgram } from "../types";
 
 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ.:!?";
 
-const simpleOutput: PlaygroundProgram = {
+const simpleOutput: PlayCoreAsciiProgram = {
   main: (cell, context) => {
     const { x, y } = cell;
     const f = context.frame;
