@@ -158,8 +158,8 @@ export function norm(a, out) {
 export function neg(v, out) {
 	out = out || vec2(0, 0)
 
-	out.x = -a.x
-	out.y = -a.y
+	out.x = -v.x
+	out.y = -v.y
 
 	return out
 }
@@ -171,7 +171,7 @@ export function rot(a, ang, out) {
 	const s = Math.sin(ang)
 	const c = Math.cos(ang)
 
-	out.x = a.x * c - a.y * s,
+	out.x = a.x * c - a.y * s
 	out.y = a.x * s + a.y * c
 
 	return out

@@ -5,7 +5,15 @@
 
 Initializes a user-facing camera,
 returns a video element (initialised asynchronously).
+
+@browser-only This module uses browser APIs and will only work in browser environments.
 */
+
+/* eslint-env browser */
+/* global navigator, document, window, console, DOMException */
+
+// Check if running in browser environment
+import { isBrowser } from '../utils';
 
 export default { init }
 
@@ -18,11 +26,15 @@ function init(callback) {
 
 // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
 function getUserMedia(callback) {
+	// Check if running in browser environment
+	if (!isBrowser) {
+		throw new Error('Camera module requires a browser environment');
+	}
 
 	// getUserMedia is not supported by browser
 	if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) {
-		throw new DOMException('getUserMedia not supported in this browser')
-		return
+		throw new DOMException('getUserMedia not supported in this browser');
+		// No return needed after throw
 	}
 
 	// Create a video element

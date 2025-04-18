@@ -15,6 +15,9 @@ const color = img.get(10, 10)
 
 */
 
+/* eslint-env browser */
+/* global document, console */
+
 import Canvas from './canvas.js'
 import Load from './load.js'
 
@@ -34,7 +37,7 @@ function load(path) {
 		console.log('Image ' + path + ' loaded. Size: ' + img.width + '×' + img.height)
 		can.resize(img.width, img.height)
 		can.copy(img)
-	}).catch(err => {
+	}).catch(() => {
 		console.warn('There was an error loading image ' + path + '.')
 	})
 

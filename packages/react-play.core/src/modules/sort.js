@@ -9,6 +9,9 @@ The fontFamily paramter needs to be set because it's used by the canvas element
 to draw the correct font.
 */
 
+/* eslint-env browser */
+/* global document, console */
+
 export function sort(charSet, fontFamily, ascending = false) {
 
 	const size = 30

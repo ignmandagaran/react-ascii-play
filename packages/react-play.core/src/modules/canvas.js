@@ -36,6 +36,9 @@ Or accessed with:
 - sample(x, y)
 */
 
+/* eslint-env browser */
+/* global document */
+
 import { map, mix } from './num.js'
 
 export const MODE_COVER  = Symbol()
@@ -43,7 +46,7 @@ export const MODE_FIT    = Symbol()
 export const MODE_CENTER = Symbol()
 
 const BLACK = { r:0, g:0, b:0, a:1, v:0 }
-const WHITE = { r:255, g:255, b:255, a:1, v:1 }
+// const WHITE = { r:255, g:255, b:255, a:1, v:1 }
 
 export default class Canvas {
 

@@ -92,7 +92,7 @@ export function mergeText(textObj, x, y, target, targetCols, targetRows) {
 	// Can be useful to wrap with markup.
 	const wrapInfo = []
 
-	text.split('\n').forEach((line, lineNum) => {
+	text.split('\n').forEach((line) => {
 		line.split('').forEach((char, charNum) => {
 			col = x + charNum
 			merge({char, ...mergeObj}, col, row, target, targetCols, targetRows)

@@ -3,11 +3,14 @@
 @desc     Exports a file via Blob
 @category internal
 
-Downloads a Blob as file and this “hack”:
-creates an anchor with a “download” attribute
+Downloads a Blob as file and this "hack":
+creates an anchor with a "download" attribute
 and then emits a click event.
 See: https://github.com/eligrey/FileSaver.js
 */
+
+/* eslint-env browser */
+/* global document, Blob, URL, setTimeout, MouseEvent */
 
 const mimeTypes = {
 	'js'  : 'text/javascript',
@@ -44,7 +47,7 @@ export function saveBlobAsFile(blob, filename) {
 function click(node) {
 	try {
 		node.dispatchEvent(new MouseEvent('click'))
-	} catch (err) {
+	} catch {
 		var e = document.createEvent('MouseEvents')
 		e.initMouseEvent('click')
 		node.dispatchEvent(e)

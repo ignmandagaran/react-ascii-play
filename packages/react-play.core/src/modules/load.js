@@ -27,10 +27,13 @@ Load.image('assets/1/colors.png').then( img => {
 
 */
 
+/* eslint-env browser */
+/* global Image, console, fetch */
+
 export default { json, image, text }
 
-function image (url) {
-	return new Promise((resolve, reject) => {
+function image(url) {
+	return new Promise((resolve) => {
 		const img = new Image()
 		img.onload = () => resolve(img)
 		img.onerror = () => {
@@ -41,21 +44,23 @@ function image (url) {
 	})
 }
 
-function text (url) {
-	return fetch(url).then( response => {
-		return response.text()
-	}).catch( err => {
-		console.log('Loader: error loading text ' + url)
-		return ''
-	})
+async function text(url) {
+	try {
+		const response = await fetch(url);
+		return await response.text();
+	} catch {
+		console.log('Loader: error loading text ' + url);
+		return '';
+	}
 }
 
-function json (url) {
-	return fetch(url).then( response => {
-		return response.json()
-	}).catch( err => {
-		console.log('Loader: error loading json ' + url)
-		return {}
-	})
+async function json(url) {
+	try {
+		const response = await fetch(url);
+		return await response.json();
+	} catch {
+		console.log('Loader: error loading json ' + url);
+		return {};
+	}
 }
 

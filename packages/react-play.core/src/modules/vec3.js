@@ -12,6 +12,8 @@
 	import * as Vec3 from '/src/modules/vec3.js'
 */
 
+import { vec2 } from './vec2.js';
+
 // Creates a vector
 export function vec3(x, y, z) {
 	return {x, y, z}
@@ -179,9 +181,9 @@ export function norm(a, out) {
 export function neg(v, out) {
 	out = out || vec3(0, 0, 0)
 
-	out.x = -a.x
-	out.y = -a.y
-	out.z = -a.z
+	out.x = -v.x
+	out.y = -v.y
+	out.z = -v.z
 
 	return out
 }
