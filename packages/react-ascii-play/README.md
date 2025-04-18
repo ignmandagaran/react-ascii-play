@@ -1,6 +1,7 @@
 # react-ascii-play
 
-A powerful React library for creating ASCII art animations and interactive ASCII-based applications. Built with TypeScript and modern React practices. This is a React port of [play.core](https://github.com/ertdfgcvb/play.core) by [Andreas Gysin](https://github.com/ertdfgcvb).
+A powerful React library for creating ASCII art animations and interactive ASCII-based applications. Built with TypeScript and modern React practices. 
+This is a React port of [play.core](https://github.com/ertdfgcvb/play.core) by [Andreas Gysin](https://github.com/ertdfgcvb).
 
 ## Features
 
@@ -104,6 +105,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-Apache License 2.0 © Ignacio F. Mandagaran
+Apache License 2.0 © [@ignmandagaran](https://github.com/ignmandagaran)
 
 This project is a port of [play.core](https://github.com/ertdfgcvb/play.core) which is also licensed under Apache License 2.0.

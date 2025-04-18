@@ -66,6 +66,11 @@ export interface PlayCoreAsciiSettings {
   letterSpacing?: string;
   lineHeight?: string;
   textAlign?: "left" | "center" | "right";
+  intersection?: {
+    threshold?: number;
+    root?: HTMLElement;
+    rootMargin?: string;
+  };
 }
 
 export interface PlayCoreAsciiProgram {

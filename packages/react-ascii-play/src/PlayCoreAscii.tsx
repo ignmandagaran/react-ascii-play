@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { RefObject, useState } from "react";
 
 interface RendererElementProps {
   renderer: "text" | "canvas";
@@ -21,6 +21,7 @@ import {
 } from "./types";
 import FPS from "./core/fps";
 import React from "react";
+import useIntersection from "./hooks/use-intersection";
 
 // Calcs width (fract), height, aspect of a monospaced char
 // assuming that the CSS font-family is a monospaced font.
@@ -102,6 +103,14 @@ export function PlayCoreAscii({
   const [rendererReady, setRendererReady] = useState(false);
   const rendererElementRef = useRef<HTMLPreElement | HTMLCanvasElement | null>(
     null
+  );
+  const intersectionObs = useIntersection(
+    rendererElementRef as RefObject<HTMLElement>,
+    {
+      threshold: settings.intersection?.threshold || 0.2,
+      root: settings.intersection?.root || null,
+      rootMargin: settings.intersection?.rootMargin || "0px",
+    }
   );
   const rendererRef = useRef<typeof textRenderer | typeof canvasRenderer>(null);
   const bufferRef = useRef<PlayCoreAsciiBuffer[]>([]);
@@ -243,6 +252,17 @@ export function PlayCoreAscii({
       setRendererReady(true);
     }
   }, []) as EventListener;
+
+  // stop loop when component is not in view
+  useEffect(() => {
+    if (!intersectionObs) return;
+    if (!intersectionObs.isIntersecting) {
+      pointerRef.current.pressed = false;
+      setRendererReady(false);
+    } else {
+      setRendererReady(true);
+    }
+  }, [intersectionObs]);
 
   // get context
   useEffect(() => {

@@ -1,5 +1,11 @@
 # react-ascii-play
 
+## 0.1.2
+
+### Patch Changes
+
+- adds intersection observer to stop loop when renderer element is not in view
+
 ## 0.1.1
 
 ### Patch Changes
