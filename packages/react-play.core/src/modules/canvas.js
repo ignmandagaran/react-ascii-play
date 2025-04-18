@@ -36,7 +36,7 @@ Or accessed with:
 - sample(x, y)
 */
 
-import { map, mix, clamp } from './num.js'
+import { map, mix } from './num.js'
 
 export const MODE_COVER  = Symbol()
 export const MODE_FIT    = Symbol()
