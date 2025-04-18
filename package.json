@@ -16,7 +16,8 @@
   "devDependencies": {
     "@turbo/gen": "^2.5.0",
     "prettier": "^3.2.5",
-    "turbo": "^2.5.0"
+    "turbo": "^2.5.0",
+    "@changesets/cli": "^2.29.2"
   },
   "packageManager": "pnpm@8.15.4"
 }
