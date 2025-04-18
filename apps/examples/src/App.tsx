@@ -1,7 +1,6 @@
-import { PlayCoreAsciiSettings } from "./types";
+import { PlayCoreAsciiSettings, PlayCoreAscii } from "@react-play.core/core";
 import "./css/font.css";
 import "./App.css";
-import { PlayCoreAscii } from "./components/PlayCoreAscii";
 import torusProgram from "./examples/torus";
 
 const settings: PlayCoreAsciiSettings = {

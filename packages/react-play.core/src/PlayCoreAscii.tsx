@@ -8,8 +8,8 @@ interface RendererElementProps {
 }
 
 import { useEffect, useRef, useCallback, useMemo } from "react";
-import textRenderer from "../core/textrenderer";
-import canvasRenderer from "../core/canvasrenderer";
+import textRenderer from "./core/textrenderer";
+import canvasRenderer from "./core/canvasrenderer";
 import {
   PlayCoreAsciiSettings,
   PlayCoreAsciiProgram,
@@ -18,8 +18,8 @@ import {
   PlayCoreAsciiBuffer,
   PlayCoreAsciiMetrics,
   PlayCoreState,
-} from "../types";
-import FPS from "../core/fps";
+} from "./types";
+import FPS from "./core/fps";
 import React from "react";
 
 // Calcs width (fract), height, aspect of a monospaced char

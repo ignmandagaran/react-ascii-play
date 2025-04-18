@@ -8,9 +8,8 @@ interface RendererElementProps {
 }
 
 import { useEffect, useRef, useCallback, useMemo } from "react";
-import textRenderer from "../core/textrenderer";
-import canvasRenderer from "../core/canvasrenderer";
-import {
+import { textRenderer, canvasRenderer, FPS } from "@react-play.core/core";
+import type {
   PlayCoreAsciiSettings,
   PlayCoreAsciiProgram,
   PlayCoreAsciiContext,
@@ -18,8 +17,7 @@ import {
   PlayCoreAsciiBuffer,
   PlayCoreAsciiMetrics,
   PlayCoreState,
-} from "../types";
-import FPS from "../core/fps";
+} from "@react-play.core/core";
 import React from "react";
 
 // Calcs width (fract), height, aspect of a monospaced char
@@ -470,6 +468,7 @@ const RendererElement: React.FC<RendererElementProps> = ({
 
   return (
     <Element
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ref={ref as any}
       className={className}
       style={{

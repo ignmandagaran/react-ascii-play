@@ -7,11 +7,7 @@
 @desc   The cursor controls box thickness and exp
 */
 
-import { sdSegment } from "../modules/sdf.js";
-import * as v2 from "../modules/vec2.js";
-import * as v3 from "../modules/vec3.js";
-import { map } from "../modules/num.js";
-import { drawInfo } from "../modules/drawbox.js";
+import { sdSegment, vec2, vec3, map, drawInfo } from "@react-play.core/core";
 
 export const settings = { fps: 60 };
 

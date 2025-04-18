@@ -1,6 +1,6 @@
 import * as storage from './storage';
 import * as canvasRenderer from './canvasrenderer';
-import * as fps from './fps';
+import * as FPS from './fps';
 import * as textRenderer from './textrenderer';
 
-export { storage, canvasRenderer, fps, textRenderer };
+export { storage, canvasRenderer, FPS, textRenderer };

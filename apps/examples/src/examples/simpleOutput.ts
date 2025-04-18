@@ -1,4 +1,4 @@
-import { PlayCoreAsciiProgram } from "../types";
+import { PlayCoreAsciiProgram } from "@react-play.core/core";
 
 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ.:!?";
 
