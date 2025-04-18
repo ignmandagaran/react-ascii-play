@@ -210,7 +210,6 @@ export function PlayCoreAscii({
 
   const handlePointerDown = useCallback(() => {
     pointerRef.current.pressed = true;
-    pointerRef.current.ppressed = pointerRef.current.pressed;
 
     if (program.pointerDown) {
       const context = getContext();
@@ -223,7 +222,6 @@ export function PlayCoreAscii({
 
   const handlePointerUp = useCallback(() => {
     pointerRef.current.pressed = false;
-    pointerRef.current.ppressed = pointerRef.current.pressed;
 
     if (program.pointerUp) {
       const context = getContext();
@@ -233,6 +231,15 @@ export function PlayCoreAscii({
       }
     }
   }, [program, getContext, getCursor]) as EventListener;
+
+  const handleVisibilityChange = useCallback(() => {
+    if (document.visibilityState === "hidden") {
+      pointerRef.current.pressed = false;
+      setRendererReady(false);
+    } else {
+      setRendererReady(true);
+    }
+  }, []) as EventListener;
 
   // get context
   useEffect(() => {
@@ -377,6 +384,9 @@ export function PlayCoreAscii({
     rendererElement.addEventListener("pointerup", handlePointerUp, {
       passive: true,
     });
+    document.addEventListener("visibilitychange", handleVisibilityChange, {
+      passive: true,
+    });
 
     // Handle text selection
     if (!mergedSettings.allowSelect) {
@@ -404,18 +414,13 @@ export function PlayCoreAscii({
           "pointerup",
           handlePointerUp as EventListener
         );
+        document.removeEventListener(
+          "visibilitychange",
+          handleVisibilityChange as EventListener
+        );
       }
     };
-  }, [
-    program,
-    mergedSettings,
-    handlePointerMove,
-    handlePointerDown,
-    handlePointerUp,
-    getContext,
-    getCursor,
-    rendererReady
-  ]);
+  }, [program, mergedSettings, handlePointerMove, handlePointerDown, handlePointerUp, getContext, getCursor, rendererReady, handleVisibilityChange]);
 
   return (
     <RendererElement
