@@ -1,54 +1,110 @@
-# React + TypeScript + Vite
+# react-ascii-play
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A powerful React library for creating ASCII art animations and interactive ASCII-based applications. Built with TypeScript and modern React practices. 
+This is a React port of [play.core](https://github.com/ertdfgcvb/play.core) by [Andreas Gysin](https://github.com/ertdfgcvb).
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🎨 High-performance ASCII rendering with both text and canvas-based renderers
+- 📐 Precise character metrics calculation for perfect ASCII art alignment
+- 🎥 Built-in animation support with FPS monitoring
+- 🖼️ Image processing and conversion to ASCII art
+- 🎮 Interactive cursor and input handling
+- 🎯 Vector operations (2D and 3D)
+- 🎨 Color support for terminal and canvas rendering
+- 📦 Modular architecture with separate modules for different functionalities
 
-## Expanding the ESLint configuration
+## Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+```bash
+npm install react-ascii-play
+# or
+yarn add react-ascii-play
+# or
+pnpm add react-ascii-play
+```
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
+## Quick Start
+
+```tsx
+import { PlayCoreAscii } from 'react-ascii-play';
+
+function MyAsciiApp() {
+  const program = {
+    // Your ASCII art program logic here
+    init: (context) => {
+      // Initialize your ASCII art
     },
-  },
-})
+    update: (context) => {
+      // Update your ASCII art
+    },
+    render: (context) => {
+      // Render your ASCII art
+    }
+  };
+
+  const settings = {
+    width: 80,
+    height: 24,
+    renderer: 'text', // or 'canvas'
+    fps: 60
+  };
+
+  return (
+    <PlayCoreAscii 
+      program={program}
+      settings={settings}
+    />
+  );
+}
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## API Reference
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Core Components
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+#### `PlayCoreAscii`
+
+The main component for rendering ASCII art.
+
+```tsx
+interface PlayCoreAsciiProps {
+  program: PlayCoreAsciiProgram;
+  settings: PlayCoreAsciiSettings;
+  className?: string;
+  loop?: (callback: (time: number) => void) => void;
+}
 ```
+
+### Modules
+
+The library exports several modules for different functionalities:
+
+- `buffer`: Buffer manipulation utilities
+- `camera`: Camera and viewport management
+- `canvas`: Canvas rendering utilities
+- `color`: Color manipulation and conversion
+- `drawInfo`: Drawing information utilities
+- `exportframe`: Frame export functionality
+- `filedownload`: File download utilities
+- `image`: Image processing and conversion
+- `load`: Asset loading utilities
+- `num`: Numerical utilities
+- `sort`: Sorting utilities
+- `vec2`: 2D vector operations
+- `vec3`: 3D vector operations
+- `sdf`: Signed Distance Field utilities
+
+## Examples
+
+Check out the examples directory for more detailed usage examples.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+Apache License 2.0 © [@ignmandagaran](https://github.com/ignmandagaran)
+
+This project is a port of [play.core](https://github.com/ertdfgcvb/play.core) which is also licensed under Apache License 2.0.
