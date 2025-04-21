@@ -236,7 +236,8 @@ export function PlayCoreAscii({
             context,
             cursor,
             bufferRef.current,
-            userDataRef.current
+            userDataRef.current,
+            _e
           );
         }
       }
@@ -244,7 +245,7 @@ export function PlayCoreAscii({
     [program, getContext, getCursor]
   ) as EventListener;
 
-  const handlePointerDown = useCallback(() => {
+  const handlePointerDown = useCallback((_e: PointerEvent) => {
     if (!pointerRef.current) return;
     pointerRef.current.pressed = true;
 
@@ -256,13 +257,14 @@ export function PlayCoreAscii({
           context,
           cursor,
           bufferRef.current,
-          userDataRef.current
+          userDataRef.current,
+          _e
         );
       }
     }
   }, [program, getContext, getCursor]) as EventListener;
 
-  const handlePointerUp = useCallback(() => {
+  const handlePointerUp = useCallback((_e: PointerEvent) => {
     if (!pointerRef.current) return;
     pointerRef.current.pressed = false;
 
@@ -274,7 +276,24 @@ export function PlayCoreAscii({
           context,
           cursor,
           bufferRef.current,
-          userDataRef.current
+          userDataRef.current,
+          _e
+        );
+      }
+    }
+  }, [program, getContext, getCursor]) as EventListener;
+
+  const handleKeyDown = useCallback((_e: KeyboardEvent) => {
+    if (program.keyDown) {
+      const context = getContext();
+      const cursor = getCursor();
+      if (context && cursor) {
+        program.keyDown(
+          context,
+          cursor,
+          bufferRef.current,
+          userDataRef.current,
+          _e
         );
       }
     }
@@ -471,6 +490,9 @@ export function PlayCoreAscii({
     rendererElement.addEventListener("pointerup", handlePointerUp, {
       passive: true,
     });
+    rendererElement.addEventListener("keydown", handleKeyDown, {
+      passive: true,
+    });
 
     // Handle text selection
     if (!mergedSettings.allowSelect) {
@@ -500,6 +522,10 @@ export function PlayCoreAscii({
         rendererElement.removeEventListener(
           "pointerup",
           handlePointerUp as EventListener
+        );
+        rendererElement.removeEventListener(
+          "keydown",
+          handleKeyDown as EventListener
         );
       }
 

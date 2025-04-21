@@ -102,19 +102,29 @@ export interface PlayCoreAsciiProgram {
     context: PlayCoreAsciiContext,
     cursor: PlayCoreAsciiCursor,
     buffer: PlayCoreAsciiBuffer,
-    userData?: unknown
+    userData?: unknown,
+    eventData?: PointerEvent
   ) => void;
   pointerDown?: (
     context: PlayCoreAsciiContext,
     cursor: PlayCoreAsciiCursor,
     buffer: PlayCoreAsciiBuffer,
-    userData?: unknown
+    userData?: unknown,
+    eventData?: PointerEvent
   ) => void;
   pointerUp?: (
     context: PlayCoreAsciiContext,
     cursor: PlayCoreAsciiCursor,
     buffer: PlayCoreAsciiBuffer,
-    userData?: unknown
+    userData?: unknown,
+    eventData?: PointerEvent
+  ) => void;
+  keyDown?: (
+    context: PlayCoreAsciiContext,
+    cursor: PlayCoreAsciiCursor,
+    buffer: PlayCoreAsciiBuffer,
+    userData?: unknown,
+    eventData?: KeyboardEvent
   ) => void;
   settings?: PlayCoreAsciiSettings;
 }
