@@ -1,5 +1,14 @@
 # react-ascii-play
 
+## 0.1.4
+
+### Patch Changes
+
+- - Added userData support via pointer events in the program
+  - Refactored PlayCoreAsciiBuffer[] to PlayCoreAsciiBuffer
+  - Cleaned up refs on component unmount
+  - Implemented keyDown event handling in the program
+
 ## 0.1.3
 
 ### Patch Changes
