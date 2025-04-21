@@ -38,12 +38,12 @@ export interface PlayCoreAsciiCell {
   index: number;
 }
 
-export interface PlayCoreAsciiBuffer {
+export interface PlayCoreAsciiBuffer extends Array<{
   char: string | number;
   color?: string;
   backgroundColor?: string;
   fontWeight?: string;
-}
+}> {}
 
 export interface PlayCoreState {
   time: number;
@@ -76,44 +76,44 @@ export interface PlayCoreAsciiSettings {
 export interface PlayCoreAsciiProgram {
   boot?: (
     context: PlayCoreAsciiContext,
-    buffer: PlayCoreAsciiBuffer[],
+    buffer: PlayCoreAsciiBuffer,
     userData?: unknown
   ) => void;
   pre?: (
     context: PlayCoreAsciiContext,
     cursor: PlayCoreAsciiCursor,
-    buffer: PlayCoreAsciiBuffer[],
+    buffer: PlayCoreAsciiBuffer,
     userData?: unknown
   ) => void;
   main?: (
     cell: PlayCoreAsciiCell,
     context: PlayCoreAsciiContext,
     cursor: PlayCoreAsciiCursor,
-    buffer: PlayCoreAsciiBuffer[],
+    buffer: PlayCoreAsciiBuffer,
     userData?: unknown
   ) => void | PlayCoreAsciiBuffer | string;
   post?: (
     context: PlayCoreAsciiContext,
     cursor: PlayCoreAsciiCursor,
-    buffer: PlayCoreAsciiBuffer[],
+    buffer: PlayCoreAsciiBuffer,
     userData?: unknown
   ) => void;
   pointerMove?: (
     context: PlayCoreAsciiContext,
     cursor: PlayCoreAsciiCursor,
-    buffer: PlayCoreAsciiBuffer[],
+    buffer: PlayCoreAsciiBuffer,
     userData?: unknown
   ) => void;
   pointerDown?: (
     context: PlayCoreAsciiContext,
     cursor: PlayCoreAsciiCursor,
-    buffer: PlayCoreAsciiBuffer[],
+    buffer: PlayCoreAsciiBuffer,
     userData?: unknown
   ) => void;
   pointerUp?: (
     context: PlayCoreAsciiContext,
     cursor: PlayCoreAsciiCursor,
-    buffer: PlayCoreAsciiBuffer[],
+    buffer: PlayCoreAsciiBuffer,
     userData?: unknown
   ) => void;
   settings?: PlayCoreAsciiSettings;
