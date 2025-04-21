@@ -101,17 +101,20 @@ export interface PlayCoreAsciiProgram {
   pointerMove?: (
     context: PlayCoreAsciiContext,
     cursor: PlayCoreAsciiCursor,
-    buffer: PlayCoreAsciiBuffer[]
+    buffer: PlayCoreAsciiBuffer[],
+    userData?: unknown
   ) => void;
   pointerDown?: (
     context: PlayCoreAsciiContext,
     cursor: PlayCoreAsciiCursor,
-    buffer: PlayCoreAsciiBuffer[]
+    buffer: PlayCoreAsciiBuffer[],
+    userData?: unknown
   ) => void;
   pointerUp?: (
     context: PlayCoreAsciiContext,
     cursor: PlayCoreAsciiCursor,
-    buffer: PlayCoreAsciiBuffer[]
+    buffer: PlayCoreAsciiBuffer[],
+    userData?: unknown
   ) => void;
   settings?: PlayCoreAsciiSettings;
 }

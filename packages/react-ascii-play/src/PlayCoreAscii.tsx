@@ -215,7 +215,7 @@ export function PlayCoreAscii({
         const context = getContext();
         const cursor = getCursor();
         if (context && cursor) {
-          program.pointerMove(context, cursor, bufferRef.current);
+          program.pointerMove(context, cursor, bufferRef.current, userDataRef.current);
         }
       }
     },
@@ -229,7 +229,7 @@ export function PlayCoreAscii({
       const context = getContext();
       const cursor = getCursor();
       if (context && cursor) {
-        program.pointerDown(context, cursor, bufferRef.current);
+        program.pointerDown(context, cursor, bufferRef.current, userDataRef.current);
       }
     }
   }, [program, getContext, getCursor]) as EventListener;
@@ -241,7 +241,7 @@ export function PlayCoreAscii({
       const context = getContext();
       const cursor = getCursor();
       if (context && cursor) {
-        program.pointerUp(context, cursor, bufferRef.current);
+        program.pointerUp(context, cursor, bufferRef.current, userDataRef.current);
       }
     }
   }, [program, getContext, getCursor]) as EventListener;
