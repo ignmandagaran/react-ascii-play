@@ -117,20 +117,22 @@ export function PlayCoreAscii({
   const frameRef = useRef<number[]>([]);
   const metricsRef = useRef<PlayCoreAsciiMetrics | null>(null);
   const contextRef = useRef<PlayCoreAsciiContext | null>(null);
-  const fpsRef = useRef(new FPS());
-  const stateRef = useRef<PlayCoreState>({
+  const fpsRef = useRef<FPS | null>(null);
+  const stateRef = useRef<PlayCoreState | null>({
     time: 0,
     frame: 0,
     cycle: 0,
   });
 
-  const pointerRef = useRef({
+  const pointerRef = useRef<PlayCoreAsciiCursor | null>({
     x: 0,
     y: 0,
     pressed: false,
-    px: 0,
-    py: 0,
-    ppressed: false,
+    p: {
+      x: 0,
+      y: 0,
+      pressed: false,
+    },
   });
 
   // Merge settings with defaults
@@ -159,8 +161,8 @@ export function PlayCoreAscii({
       Math.floor(rect.height / metricsRef.current.lineHeight);
 
     return {
-      frame: stateRef.current.frame,
-      time: stateRef.current.time,
+      frame: stateRef.current?.frame || 0,
+      time: stateRef.current?.time || 0,
       cols,
       rows,
       metrics: metricsRef.current,
@@ -168,8 +170,8 @@ export function PlayCoreAscii({
       height: rect.height,
       settings: mergedSettings,
       runtime: {
-        cycle: stateRef.current.cycle,
-        fps: fpsRef.current.fps,
+        cycle: stateRef.current?.cycle || 0,
+        fps: fpsRef.current?.fps || 0,
       },
     };
   }, [mergedSettings]);
@@ -179,20 +181,37 @@ export function PlayCoreAscii({
     const context = getContext();
     if (!context || !metricsRef.current) return null;
 
+    if (!pointerRef.current) {
+      pointerRef.current = {
+        x: 0,
+        y: 0,
+        pressed: false,
+        p: {
+          x: 0,
+          y: 0,
+          pressed: false,
+        },
+      };
+    }
+
     return {
       x: Math.min(
         context.cols - 1,
-        pointerRef.current.x / metricsRef.current.cellWidth
+        pointerRef.current.x / metricsRef.current.cellWidth || 0
       ),
       y: Math.min(
         context.rows - 1,
-        pointerRef.current.y / metricsRef.current.lineHeight
+        pointerRef.current.y / metricsRef.current.lineHeight || 0
       ),
-      pressed: pointerRef.current.pressed,
+      pressed: pointerRef.current.pressed || false,
       p: {
-        x: pointerRef.current.px / metricsRef.current.cellWidth,
-        y: pointerRef.current.py / metricsRef.current.lineHeight,
-        pressed: pointerRef.current.ppressed,
+        x: pointerRef.current.p?.x
+          ? pointerRef.current.p.x / metricsRef.current.cellWidth
+          : 0,
+        y: pointerRef.current.p?.y
+          ? pointerRef.current.p.y / metricsRef.current.lineHeight
+          : 0,
+        pressed: pointerRef.current.p?.pressed || false,
       },
     };
   }, [getContext]);
@@ -200,22 +219,25 @@ export function PlayCoreAscii({
   // Handle pointer events
   const handlePointerMove = useCallback(
     (_e: PointerEvent) => {
-      if (!rendererElementRef.current) return;
+      if (!rendererElementRef.current || !pointerRef.current) return;
 
       const rect = rendererElementRef.current.getBoundingClientRect();
       pointerRef.current = {
         ...pointerRef.current,
         x: _e.clientX - rect.left,
         y: _e.clientY - rect.top,
-        px: pointerRef.current.x,
-        py: pointerRef.current.y,
       };
 
       if (program.pointerMove) {
         const context = getContext();
         const cursor = getCursor();
         if (context && cursor) {
-          program.pointerMove(context, cursor, bufferRef.current, userDataRef.current);
+          program.pointerMove(
+            context,
+            cursor,
+            bufferRef.current,
+            userDataRef.current
+          );
         }
       }
     },
@@ -223,32 +245,46 @@ export function PlayCoreAscii({
   ) as EventListener;
 
   const handlePointerDown = useCallback(() => {
+    if (!pointerRef.current) return;
     pointerRef.current.pressed = true;
 
     if (program.pointerDown) {
       const context = getContext();
       const cursor = getCursor();
       if (context && cursor) {
-        program.pointerDown(context, cursor, bufferRef.current, userDataRef.current);
+        program.pointerDown(
+          context,
+          cursor,
+          bufferRef.current,
+          userDataRef.current
+        );
       }
     }
   }, [program, getContext, getCursor]) as EventListener;
 
   const handlePointerUp = useCallback(() => {
+    if (!pointerRef.current) return;
     pointerRef.current.pressed = false;
 
     if (program.pointerUp) {
       const context = getContext();
       const cursor = getCursor();
       if (context && cursor) {
-        program.pointerUp(context, cursor, bufferRef.current, userDataRef.current);
+        program.pointerUp(
+          context,
+          cursor,
+          bufferRef.current,
+          userDataRef.current
+        );
       }
     }
   }, [program, getContext, getCursor]) as EventListener;
 
   const handleVisibilityChange = useCallback(() => {
     if (document.visibilityState === "hidden") {
-      pointerRef.current.pressed = false;
+      if (pointerRef.current) {
+        pointerRef.current.pressed = false;
+      }
       setRendererReady(false);
     } else {
       setRendererReady(true);
@@ -259,7 +295,9 @@ export function PlayCoreAscii({
   useEffect(() => {
     if (!intersectionObs) return;
     if (!intersectionObs.isIntersecting) {
-      pointerRef.current.pressed = false;
+      if (pointerRef.current) {
+        pointerRef.current.pressed = false;
+      }
       setRendererReady(false);
     } else {
       setRendererReady(true);
@@ -336,6 +374,10 @@ export function PlayCoreAscii({
     let lastTime = 0;
     const interval = 1000 / mergedSettings.fps!;
 
+    if (!fpsRef.current) {
+      fpsRef.current = new FPS();
+    }
+
     const animate = (time: number) => {
       const delta = time - lastTime;
       if (delta < interval) {
@@ -352,15 +394,15 @@ export function PlayCoreAscii({
       const context = getContext();
       const cursor = getCursor();
 
-      fpsRef.current.update(time);
+      fpsRef.current?.update(time);
 
       if (!context || !cursor) return;
 
       // Update state
       stateRef.current = {
         time,
-        frame: stateRef.current.frame + 1,
-        cycle: stateRef.current.cycle,
+        frame: (stateRef.current?.frame || 0) + 1,
+        cycle: stateRef.current?.cycle || 0,
       };
 
       // Run program steps
@@ -460,6 +502,16 @@ export function PlayCoreAscii({
           handlePointerUp as EventListener
         );
       }
+
+      // clean up refs
+      bufferRef.current = [];
+      frameRef.current = [];
+      metricsRef.current = null;
+      contextRef.current = null;
+      fpsRef.current = null;
+      stateRef.current = null;
+      pointerRef.current = null;
+      userDataRef.current = {};
     };
   }, [
     program,
