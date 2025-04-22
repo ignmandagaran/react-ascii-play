@@ -1,5 +1,11 @@
 # react-ascii-play
 
+## 0.1.11
+
+### Patch Changes
+
+- Refactor and modularize vector and math functions in react-ascii-play; update imports and exports for better structure. Remove deprecated run.js file and enhance type definitions across modules.
+
 ## 0.1.10
 
 ### Patch Changes

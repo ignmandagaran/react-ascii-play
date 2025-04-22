@@ -1,6 +1,6 @@
 {
   "name": "react-ascii-play",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -23,7 +23,9 @@
   },
   "typesVersions": {
     "*": {
-      "modules/*": ["./dist/modules/*.d.ts"]
+      "modules/*": [
+        "./dist/modules/*.d.ts"
+      ]
     }
   },
   "keywords": [
