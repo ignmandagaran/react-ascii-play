@@ -1,5 +1,11 @@
 # react-ascii-play
 
+## 0.1.5
+
+### Patch Changes
+
+- update readme & package keywords
+
 ## 0.1.4
 
 ### Patch Changes

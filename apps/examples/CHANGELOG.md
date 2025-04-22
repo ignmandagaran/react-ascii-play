@@ -1,5 +1,12 @@
 # @react-ascii-play/examples
 
+## 0.0.7
+
+### Patch Changes
+
+- Updated dependencies
+  - react-ascii-play@0.1.5
+
 ## 0.0.6
 
 ### Patch Changes
