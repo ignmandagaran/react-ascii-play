@@ -6,6 +6,14 @@
     "packages/*",
     "apps/*"
   ],
+  "keywords": [
+    "react",
+    "ascii",
+    "play",
+    "play.core",
+    "animation",
+    "typescript"
+  ],
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
