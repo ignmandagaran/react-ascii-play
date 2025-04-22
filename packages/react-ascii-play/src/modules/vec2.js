@@ -249,4 +249,34 @@ export function roundVec2(a, out) {
 	return out
 }
 
+const vec2 = {
+	createVec2,
+	copyVec2,
+	addVec2,
+	subVec2,
+	mulVec2,
+	divVec2,
+	addNVec2,
+	subNVec2,
+	mulNVec2,
+	divNVec2,
+	dotVec2,
+	lengthVec2,
+	lengthSqVec2,
+	distVec2,
+	distSqVec2,
+	normVec2,
+	negVec2,
+	rotVec2,
+	mixVec2,
+	absVec2,
+	maxVec2,
+	minVec2,
+	fractVec2,
+	floorVec2,
+	ceilVec2,
+	roundVec2,
+}
+
+export default vec2
 

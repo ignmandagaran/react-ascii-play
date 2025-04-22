@@ -1,5 +1,11 @@
 # react-ascii-play
 
+## 0.1.15
+
+### Patch Changes
+
+- fix vec2 & vec3 exports
+
 ## 0.1.14
 
 ### Patch Changes
