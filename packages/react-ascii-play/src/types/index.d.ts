@@ -77,53 +77,53 @@ export interface PlayCoreAsciiMetrics {
     boot?: (
       context: PlayCoreAsciiContext,
       buffer: PlayCoreAsciiBuffer,
-      userData?: Record<string, any>
+      userData?: Record<string, unknown>
     ) => void;
     pre?: (
       context: PlayCoreAsciiContext,
       cursor: PlayCoreAsciiCursor,
       buffer: PlayCoreAsciiBuffer,
-      userData?: Record<string, any>
+      userData?: Record<string, unknown>
     ) => void;
     main?: (
       cell: PlayCoreAsciiCell,
       context: PlayCoreAsciiContext,
       cursor: PlayCoreAsciiCursor,
       buffer: PlayCoreAsciiBuffer,
-      userData?: Record<string, any>
+      userData?: Record<string, unknown>
     ) => void | PlayCoreAsciiBuffer | string;
     post?: (
       context: PlayCoreAsciiContext,
       cursor: PlayCoreAsciiCursor,
       buffer: PlayCoreAsciiBuffer,
-      userData?: Record<string, any>
+      userData?: Record<string, unknown>
     ) => void;
     pointerMove?: (
       context: PlayCoreAsciiContext,
       cursor: PlayCoreAsciiCursor,
       buffer: PlayCoreAsciiBuffer,
-      userData?: Record<string, any>,
+      userData?: Record<string, unknown>,
       eventData?: PointerEvent
     ) => void;
     pointerDown?: (
       context: PlayCoreAsciiContext,
       cursor: PlayCoreAsciiCursor,
       buffer: PlayCoreAsciiBuffer,
-      userData?: Record<string, any>,
+      userData?: Record<string, unknown>,
       eventData?: PointerEvent
     ) => void;
     pointerUp?: (
       context: PlayCoreAsciiContext,
       cursor: PlayCoreAsciiCursor,
       buffer: PlayCoreAsciiBuffer,
-      userData?: Record<string, any>,
+      userData?: Record<string, unknown>,
       eventData?: PointerEvent
     ) => void;
     keyDown?: (
       context: PlayCoreAsciiContext,
       cursor: PlayCoreAsciiCursor,
       buffer: PlayCoreAsciiBuffer,
-      userData?: Record<string, any>,
+      userData?: Record<string, unknown>,
       eventData?: KeyboardEvent
     ) => void;
     settings?: PlayCoreAsciiSettings;
