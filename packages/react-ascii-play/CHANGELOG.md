@@ -1,5 +1,11 @@
 # react-ascii-play
 
+## 0.1.12
+
+### Patch Changes
+
+- fix vec3 definitions
+
 ## 0.1.11
 
 ### Patch Changes
