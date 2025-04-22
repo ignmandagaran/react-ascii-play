@@ -7,14 +7,16 @@
 @desc   The cursor controls box thickness and exp
 */
 
-import { sdf, vec2, vec3, num, drawInfo } from "react-ascii-play";
+import { mapNum } from "react-ascii-play/modules/num";
+import { drawInfo } from "react-ascii-play/modules/drawbox";
+import { createVec3, copyVec3, rotXVec3, rotYVec3, rotZVec3 } from "react-ascii-play/modules/vec3";
+import { createVec2, mulNVec2 } from "react-ascii-play/modules/vec2";
+import { sdSegment } from "react-ascii-play/modules/sdf";
 
 export const settings = { fps: 60 };
 
 const density = " -=+abcdX";
 
-const { map } = num;
-const { sdSegment } = sdf;
 const { sin, floor, abs, exp, min } = Math;
 
 // Lookup table for the background
@@ -45,7 +47,7 @@ for (let i = 0; i < majorSegments; i++) {
     const y = (R + r * Math.cos(phi)) * Math.sin(theta);
     const z = r * Math.sin(phi);
 
-    vertices.push(vec3.create(x, y, z));
+    vertices.push(createVec3(x, y, z));
 
     // Connect to next minor segment
     const current = i * minorSegments + j;
@@ -65,20 +67,20 @@ const torus = {
 
 const boxProj = [];
 
-const bgMatrixDim = vec2.create(bgMatrix[0].length, bgMatrix.length);
+const bgMatrixDim = createVec2(bgMatrix[0].length, bgMatrix.length);
 
 const torusProgram: PlayCoreAsciiProgram = {
   pre(context) {
     const t = context.time * 0.01;
-    const rot = vec3.create(t * 0.11, t * 0.13, -t * 0.15);
+    const rot = createVec3(t * 0.11, t * 0.13, -t * 0.15);
     const d = 2;
-    const zOffs = map(sin(t * 0.12), -1, 1, -2.5, -6);
+    const zOffs = mapNum(sin(t * 0.12), -1, 1, -2.5, -6);
     for (let i = 0; i < torus.vertices.length; i++) {
-      const v = vec3.copy(torus.vertices[i]);
-      let vt = vec3.rotX(v, rot.x);
-      vt = vec3.rotY(vt, rot.y);
-      vt = vec3.rotZ(vt, rot.z);
-      boxProj[i] = vec2.mulN(vec2.create(vt.x, vt.y), d / (vt.z - zOffs));
+      const v = copyVec3(torus.vertices[i]);
+      let vt = rotXVec3(v, rot.x);
+      vt = rotYVec3(vt, rot.y);
+      vt = rotZVec3(vt, rot.z);
+      boxProj[i] = mulNVec2(createVec2(vt.x, vt.y), d / (vt.z - zOffs));
     }
   },
   main(coord, context, cursor) {
@@ -92,8 +94,8 @@ const torusProgram: PlayCoreAsciiProgram = {
 
     let d = 1e10;
     const n = torus.edges.length;
-    const thickness = map(cursor.x, 0, context.cols, 0.001, 0.1);
-    const expMul = map(cursor.y, 0, context.rows, -100, -5);
+    const thickness = mapNum(cursor.x, 0, context.cols, 0.001, 0.1);
+    const expMul = mapNum(cursor.y, 0, context.rows, -100, -5);
     for (let i = 0; i < n; i++) {
       const a = boxProj[torus.edges[i][0]];
       const b = boxProj[torus.edges[i][1]];
@@ -117,7 +119,7 @@ const torusProgram: PlayCoreAsciiProgram = {
     }
   },
   post(context, cursor, buffer) {
-    drawInfo.drawInfo(context, cursor, buffer);
+    drawInfo(context, cursor, buffer);
   },
 };
 

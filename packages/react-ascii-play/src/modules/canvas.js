@@ -1,5 +1,5 @@
 /**
-@module   canvas.js
+@module   canvas.cjs
 @desc     A wrapper for a canvas element
 @category public
 
@@ -39,7 +39,7 @@ Or accessed with:
 /* eslint-env browser */
 /* global document */
 
-import { map, mix } from './num.js'
+import { mapNum, mixNum } from './num.js'
 
 export const MODE_COVER  = Symbol()
 export const MODE_FIT    = Symbol()
@@ -200,9 +200,9 @@ export default class Canvas {
 
   		// Avoid 9 extra interpolations if only gray is needed
   		if (gray) {
-	  		const p1 = mix(this.get(l, b).v, this.get(r, b).v, lr)
-	  		const p2 = mix(this.get(l, t).v, this.get(r, t).v, lr)
-	  		return mix(p1, p2, bt)
+	  		const p1 = mixNum(this.get(l, b).v, this.get(r, b).v, lr)
+	  		const p2 = mixNum(this.get(l, t).v, this.get(r, t).v, lr)
+	  		return mixNum(p1, p2, bt)
 	  	} else {
 	  		const p1 = mixColors(this.get(l, b), this.get(r, b), lr)
 	  		const p2 = mixColors(this.get(l, t), this.get(r, t), lr)
@@ -261,10 +261,10 @@ export default class Canvas {
 
 function mixColors(a, b, amt) {
 	return {
-		r : mix(a.r, b.r, amt),
-		g : mix(a.g, b.g, amt),
-		b : mix(a.b, b.b, amt),
-		v : mix(a.v, b.v, amt)
+		r : mixNum(a.r, b.r, amt),
+		g : mixNum(a.g, b.g, amt),
+		b : mixNum(a.b, b.b, amt),
+		v : mixNum(a.v, b.v, amt)
 	}
 }
 
@@ -382,7 +382,7 @@ function normalizeGray(arrayIn, arrayOut, lower=0.0, upper=1.0) {
 	//     return map(v, min, max, 0, 1)
 	// })
 	for (let i=0; i<arrayIn.length; i++) {
-		const v = min == max ? min : map(arrayIn[i].v, min, max, lower, upper)
+		const v = min == max ? min : mapNum(arrayIn[i].v, min, max, lower, upper)
 		arrayOut[i] = {...arrayOut[i], v}
 	}
 	return arrayOut

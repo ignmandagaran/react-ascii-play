@@ -1,5 +1,5 @@
 /**
-@module   string.js
+@module   string.cjs
 @desc     String helpers
 @category internal
 
@@ -9,9 +9,9 @@ Counts lines and maxWidth (can be greater than width).
 If no width is passed the function just measures the 'box' of the text.
 */
 
-export function wrap(string, width=0) {
+export function wrapString(string, width=0) {
 
-	if (width==0) return measure(string)
+	if (width==0) return measureString(string)
 
 	const paragraphs = string.split('\n')
 	let out = ''
@@ -73,7 +73,7 @@ export function measure(string) {
 */
 
 
-export function measure(string) {
+export function measureString(string) {
 	let numLines = 0
 	let maxWidth = 0
 	let len = 0

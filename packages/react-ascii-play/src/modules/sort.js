@@ -1,5 +1,5 @@
 /**
-@module   sort.js
+@module   sort.cjs
 @desc     Sorts a set of characters by brightness
 @category public
 
@@ -12,7 +12,7 @@ to draw the correct font.
 /* eslint-env browser */
 /* global document, console */
 
-export function sort(charSet, fontFamily, ascending = false) {
+export function sortAscii(charSet, fontFamily, ascending = false) {
 
 	const size = 30
 	const ctx = document.createElement('canvas').getContext('2d')

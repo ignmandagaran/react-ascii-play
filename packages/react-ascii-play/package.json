@@ -9,6 +9,23 @@
   "files": [
     "dist/**"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./modules/*": {
+      "types": "./dist/modules/*.d.ts",
+      "import": "./dist/modules/*.mjs",
+      "require": "./dist/modules/*.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "modules/*": ["./dist/modules/*.d.ts"]
+    }
+  },
   "keywords": [
     "react",
     "ascii",
@@ -18,8 +35,8 @@
     "typescript"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts",
-    "dev": "tsup src/index.ts --format esm,cjs --watch --dts",
+    "build": "tsup",
+    "dev": "tsup --watch",
     "lint": "eslint \"src/**/*.ts*\"",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },

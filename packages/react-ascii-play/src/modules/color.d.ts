@@ -47,9 +47,9 @@ export function int2rgb(int: number): {
     g: number;
     b: number;
 };
-export const CSS4: Record<string, number | string>;
-export const CSS3: Record<string, number | string>;
-export const CSS2: Record<string, number | string>;
-export const CSS1: Record<string, number | string>;
-export const C64: number[];
-export const CGA: number[];
+export const CSS4: Record<string, number | string> = {};
+export const CSS3: Record<string, number | string> = {};
+export const CSS2: Record<string, number | string> = {};
+export const CSS1: Record<string, number | string> = {};
+export const C64: number[] = [];
+export const CGA: number[] = [];

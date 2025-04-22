@@ -1,5 +1,5 @@
 /**
-@module   camera.js
+@module   camera.cjs
 @desc     Webcam init and helper
 @category public
 

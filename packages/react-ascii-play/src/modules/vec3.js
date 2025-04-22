@@ -8,20 +8,16 @@
 - An optional destination object can be passed as last paremeter to all
   the functions (except vec3()).
 - All function can be exported individually or grouped via default export.
-- For the default export use:
-	import * as Vec3 from '/src/modules/vec3.js'
 */
 
-import * as vec2 from './vec2.js';
-
 // Creates a vector
-export function create(x, y, z) {
+export function createVec3(x, y, z) {
 	return {x, y, z}
 }
 
 // Copies a vector
-export function copy(a, out) {
-	out = out || create(0, 0, 0)
+export function copyVec3(a, out) {
+	out = out || createVec3(0, 0, 0)
 
 	out.x = a.x
 	out.y = a.y
@@ -31,8 +27,8 @@ export function copy(a, out) {
 }
 
 // Adds two vectors
-export function add(a, b, out) {
-	out = out || create(0, 0, 0)
+export function addVec3(a, b, out) {
+	out = out || createVec3(0, 0, 0)
 
 	out.x = a.x + b.x
 	out.y = a.y + b.y
@@ -42,8 +38,8 @@ export function add(a, b, out) {
 }
 
 // Subtracts two vectors
-export function sub(a, b, out) {
-	out = out || create(0, 0, 0)
+export function subVec3(a, b, out) {
+	out = out || createVec3(0, 0, 0)
 
 	out.x = a.x - b.x
 	out.y = a.y - b.y
@@ -53,8 +49,8 @@ export function sub(a, b, out) {
 }
 
 // Multiplies a vector by another vector (component-wise)
-export function mul(a, b, out) {
-	out = out || create(0, 0, 0)
+export function mulVec3(a, b, out) {
+	out = out || createVec3(0, 0, 0)
 
 	out.x = a.x * b.x
 	out.y = a.y * b.y
@@ -64,8 +60,8 @@ export function mul(a, b, out) {
 }
 
 // Divides a vector by another vector (component-wise)
-export function div(a, b, out) {
-	out = out || create(0, 0, 0)
+export function divVec3(a, b, out) {
+	out = out || createVec3(0, 0, 0)
 
 	out.x = a.x / b.x
 	out.y = a.y / b.y
@@ -75,8 +71,8 @@ export function div(a, b, out) {
 }
 
 // Adds a scalar to a vector
-export function addN(a, k, out) {
-	out = out || create(0, 0, 0)
+export function addNVec3(a, k, out) {
+	out = out || createVec3(0, 0, 0)
 
 	out.x = a.x + k
 	out.y = a.y + k
@@ -86,8 +82,8 @@ export function addN(a, k, out) {
 }
 
 // Subtracts a scalar from a vector
-export function subN(a, k, out) {
-	out = out || create(0, 0, 0)
+export function subNVec3(a, k, out) {
+	out = out || createVec3(0, 0, 0)
 
 	out.x = a.x - k
 	out.y = a.y - k
@@ -97,8 +93,8 @@ export function subN(a, k, out) {
 }
 
 // Mutiplies a vector by a scalar
-export function mulN(a, k, out) {
-	out = out || create(0, 0, 0)
+export function mulNVec3(a, k, out) {
+	out = out || createVec3(0, 0, 0)
 
 	out.x = a.x * k
 	out.y = a.y * k
@@ -108,8 +104,8 @@ export function mulN(a, k, out) {
 }
 
 // Divides a vector by a scalar
-export function divN(a, k, out) {
-	out = out || create(0, 0, 0)
+export function divNVec3(a, k, out) {
+	out = out || createVec3(0, 0, 0)
 
 	out.x = a.x / k
 	out.y = a.y / k
@@ -119,13 +115,13 @@ export function divN(a, k, out) {
 }
 
 // Computes the dot product of two vectors
-export function dot(a, b) {
+export function dotVec3(a, b) {
 	return a.x * b.x + a.y * b.y + a.z * b.z
 }
 
 // Computes the cross product of two vectors
-export function cross (a, b, out) {
-   	out = out || create(0, 0, 0)
+export function crossVec3(a, b, out) {
+   	out = out || createVec3(0, 0, 0)
 
 	out.x = a.y * b.z - a.z * b.y
 	out.y = a.z * b.x - a.x * b.z
@@ -133,17 +129,17 @@ export function cross (a, b, out) {
 	return out
 }
 // Computes the length of vector
-export function length(a) {
+export function lengthVec3(a) {
 	return Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z)
 }
 
 // Computes the square of the length of vector
-export function lengthSq(a) {
+export function lengthSqVec3(a) {
 	return a.x * a.x + a.y * a.y + a.z * a.z
 }
 
 // Computes the distance between 2 points
-export function dist(a, b) {
+export function distVec3(a, b) {
 	const dx = a.x - b.x
 	const dy = a.y - b.y
 	const dz = a.z - b.z
@@ -152,7 +148,7 @@ export function dist(a, b) {
 }
 
 // Computes the square of the distance between 2 points
-export function distSq(a, b) {
+export function distSqVec3(a, b) {
 	const dx = a.x - b.x
 	const dy = a.y - b.y
 
@@ -160,10 +156,10 @@ export function distSq(a, b) {
 }
 
 // Divides a vector by its Euclidean length and returns the quotient
-export function norm(a, out) {
-	out = out || create(0, 0, 0)
+export function normVec3(a, out) {
+	out = out || createVec3(0, 0, 0)
 
-	const l = length(a)
+	const l = lengthVec3(a)
 	if (l > 0.00001) {
 		out.x = a.x / l
 		out.y = a.y / l
@@ -178,8 +174,8 @@ export function norm(a, out) {
 }
 
 // Negates a vector
-export function neg(v, out) {
-	out = out || create(0, 0, 0)
+export function negVec3(v, out) {
+	out = out || createVec3(0, 0, 0)
 
 	out.x = -v.x
 	out.y = -v.y
@@ -189,8 +185,8 @@ export function neg(v, out) {
 }
 
 // Rotates a vector around the x axis
-export function rotX(v, ang, out) {
-	out = out || create(0, 0, 0)
+export function rotXVec3(v, ang, out) {
+	out = out || createVec3(0, 0, 0)
 	const c = Math.cos(ang)
 	const s = Math.sin(ang)
     out.x = v.x
@@ -200,8 +196,8 @@ export function rotX(v, ang, out) {
 }
 
 // Rotates a vector around the y axis
-export function rotY(v, ang, out) {
-	out = out || create(0, 0, 0)
+export function rotYVec3(v, ang, out) {
+	out = out || createVec3(0, 0, 0)
 	const c = Math.cos(ang)
 	const s = Math.sin(ang)
 	out.x =  v.x * c + v.z * s
@@ -211,8 +207,8 @@ export function rotY(v, ang, out) {
 }
 
 // Rotates a vector around the z axis
-export function rotZ(v, ang, out) {
-	out = out || create(0, 0, 0)
+export function rotZVec3(v, ang, out) {
+	out = out || createVec3(0, 0, 0)
 	const c = Math.cos(ang)
 	const s = Math.sin(ang)
 	out.x = v.x * c - v.y * s
@@ -222,8 +218,8 @@ export function rotZ(v, ang, out) {
 }
 
 // Performs linear interpolation on two vectors
-export function mix(a, b, t, out) {
-	out = out || create(0, 0, 0)
+export function mixVec3(a, b, t, out) {
+	out = out || createVec3(0, 0, 0)
 
 	out.x = (1 - t) * a.x + t * b.x
 	out.y = (1 - t) * a.y + t * b.y
@@ -233,8 +229,8 @@ export function mix(a, b, t, out) {
 }
 
 // Computes the abs of a vector (component-wise)
- export function abs(a, out) {
-	out = out || vec3(0, 0, 0)
+ export function absVec3(a, out) {
+	out = out || createVec3(0, 0, 0)
 
 	out.x = Math.abs(a.x)
 	out.y = Math.abs(a.y)
@@ -244,8 +240,8 @@ export function mix(a, b, t, out) {
 }
 
 // Computes the max of two vectors (component-wise)
-export function max(a, b, out) {
-	out = out || vec3(0, 0, 0)
+export function maxVec3(a, b, out) {
+	out = out || createVec3(0, 0, 0)
 
 	out.x = Math.max(a.x, b.x)
 	out.y = Math.max(a.y, b.y)
@@ -255,8 +251,8 @@ export function max(a, b, out) {
 }
 
 // Computes the min of two vectors (component-wise)
-export function min(a, b, out) {
-	out = out || vec3(0, 0, 0)
+export function minVec3(a, b, out) {
+	out = out || createVec3(0, 0, 0)
 
 	out.x = Math.min(a.x, b.x)
 	out.y = Math.min(a.y, b.y)
@@ -266,8 +262,8 @@ export function min(a, b, out) {
 }
 
 // Returns the fractional part of the vector (component-wise)
-export function fract(a, out) {
-	out = out || vec2.create(0, 0)
+export function fractVec3(a, out) {
+	out = out || createVec3(0, 0, 0)
 	out.x = a.x - Math.floor(a.x)
 	out.y = a.y - Math.floor(a.y)
 	out.z = a.z - Math.floor(a.z)
@@ -275,8 +271,8 @@ export function fract(a, out) {
 }
 
 // Returns the floored vector (component-wise)
-export function floor(a, out) {
-	out = out || vec2.create(0, 0)
+export function floorVec3(a, out) {
+	out = out || createVec3(0, 0, 0)
 	out.x = Math.floor(a.x)
 	out.y = Math.floor(a.y)
 	out.z = Math.floor(a.z)
@@ -284,8 +280,8 @@ export function floor(a, out) {
 }
 
 // Returns the ceiled vector (component-wise)
-export function ceil(a, out) {
-	out = out || vec2.create(0, 0)
+export function ceilVec3(a, out) {
+	out = out || createVec3(0, 0, 0)
 	out.x = Math.ceil(a.x)
 	out.y = Math.ceil(a.y)
 	out.z = Math.ceil(a.z)
@@ -293,8 +289,8 @@ export function ceil(a, out) {
 }
 
 // Returns the rounded vector (component-wise)
-export function round(a, out) {
-	out = out || vec2.create(0, 0)
+export function roundVec3(a, out) {
+	out = out || createVec3(0, 0, 0)
 	out.x = Math.round(a.x)
 	out.y = Math.round(a.y)
 	out.z = Math.round(a.z)

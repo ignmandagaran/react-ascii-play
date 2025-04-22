@@ -1,5 +1,5 @@
 /**
-@module   sort.js
+@module   sort.cjs
 @desc     Sorts a set of characters by brightness
 @category public
 
@@ -8,4 +8,4 @@ This could be done once and then stored / hardcoded.
 The fontFamily paramter needs to be set because it's used by the canvas element
 to draw the correct font.
 */
-export function sort(charSet: string[], fontFamily: string, ascending?: boolean): string[];
+export function sortAscii(charSet: string[], fontFamily: string, ascending?: boolean): string[];

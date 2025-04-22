@@ -1,5 +1,5 @@
 /**
-@module   filedownload.js
+@module   filedownload.cjs
 @desc     Exports a file via Blob
 @category internal
 

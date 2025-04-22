@@ -1,7 +1,7 @@
 import { PlayCoreAsciiBuffer } from "../types";
 
 /**
-@module   buffer.js
+@module   buffer.cjs
 @desc     Safe buffer helpers, mostly for internal use
 @category internal
 
@@ -14,12 +14,12 @@ the array.
 const v = get(10, 10, buffer, cols, rows)
 
 */
-export function get(x: number, y: number, target: PlayCoreAsciiBuffer[], targetCols: number, targetRows: number): number;
-export function set(val: number, x: number, y: number, target: PlayCoreAsciiBuffer[], targetCols: number, targetRows: number): void;
-export function merge(val: number, x: number, y: number, target: PlayCoreAsciiBuffer[], targetCols: number, targetRows: number): void;
-export function setRect(val: number, x: number, y: number, w: number, h: number, target: PlayCoreAsciiBuffer[], targetCols: number, targetRows: number): void;
-export function mergeRect(val: number, x: number, y: number, w: number, h: number, target: PlayCoreAsciiBuffer[], targetCols: number, targetRows: number): void;
-export function mergeText(textObj: Record<{char: string, color: number}, number>[], x: number, y: number, target: PlayCoreAsciiBuffer[], targetCols: number, targetRows: number): {
+export function getBuffer(x: number, y: number, target: PlayCoreAsciiBuffer[], targetCols: number, targetRows: number): number;
+export function setBuffer(val: number, x: number, y: number, target: PlayCoreAsciiBuffer[], targetCols: number, targetRows: number): void;
+export function mergeBuffer(val: number, x: number, y: number, target: PlayCoreAsciiBuffer[], targetCols: number, targetRows: number): void;
+export function setRectBuffer(val: number, x: number, y: number, w: number, h: number, target: PlayCoreAsciiBuffer[], targetCols: number, targetRows: number): void;
+export function mergeRectBuffer(val: number, x: number, y: number, w: number, h: number, target: PlayCoreAsciiBuffer[], targetCols: number, targetRows: number): void;
+export function mergeTextBuffer(textObj: Record<{char: string, color: number}, number>[], x: number, y: number, target: PlayCoreAsciiBuffer[], targetCols: number, targetRows: number): {
     offset: {
         col: number;
         row: number;

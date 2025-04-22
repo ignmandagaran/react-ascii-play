@@ -1,5 +1,5 @@
 /**
-@module   image.js
+@module   image.cjs
 @desc     Image loader and helper
 @category public
 

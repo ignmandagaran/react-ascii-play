@@ -1,5 +1,5 @@
 /**
-@module   buffer.js
+@module   buffer.cjs
 @desc     Safe buffer helpers, mostly for internal use
 @category internal
 
@@ -14,7 +14,7 @@ const v = get(10, 10, buffer, cols, rows)
 */
 
 // Safe get function to read from a buffer
-export function get(x, y, target, targetCols, targetRows) {
+export function getBuffer(x, y, target, targetCols, targetRows) {
 	if (x < 0 || x >= targetCols) return {}
 	if (y < 0 || y >= targetRows) return {}
 	const i = x + y * targetCols
@@ -27,14 +27,14 @@ export function get(x, y, target, targetCols, targetRows) {
 // The value to be set is a single character or a 'cell' object like:
 // { char, color, backgroundColor, fontWeight }
 // which can overwrite the buffer (set) or partially merged (merge)
-export function set(val, x, y, target, targetCols, targetRows) {
+export function setBuffer(val, x, y, target, targetCols, targetRows) {
 	if (x < 0 || x >= targetCols) return
 	if (y < 0 || y >= targetRows) return
 	const i = x + y * targetCols
 	target[i] = val
 }
 
-export function merge(val, x, y, target, targetCols, targetRows) {
+export function mergeBuffer(val, x, y, target, targetCols, targetRows) {
 	if (x < 0 || x >= targetCols) return
 	if (y < 0 || y >= targetRows) return
 	const i = x + y * targetCols
@@ -45,18 +45,18 @@ export function merge(val, x, y, target, targetCols, targetRows) {
 	target[i] = { ...cell, ...val }
 }
 
-export function setRect(val, x, y, w, h, target, targetCols, targetRows) {
+export function setRectBuffer(val, x, y, w, h, target, targetCols, targetRows) {
 	for (let j=y; j<y+h; j++ ) {
 		for (let i=x; i<x+w; i++ ) {
-			set(val, i, j, target, targetCols, targetRows)
+			setBuffer(val, i, j, target, targetCols, targetRows)
 		}
 	}
 }
 
-export function mergeRect(val, x, y, w, h, target, targetCols, targetRows) {
+export function mergeRectBuffer(val, x, y, w, h, target, targetCols, targetRows) {
 	for (let j=y; j<y+h; j++ ) {
 		for (let i=x; i<x+w; i++ ) {
-			merge(val, i, j, target, targetCols, targetRows)
+			mergeBuffer(val, i, j, target, targetCols, targetRows)
 		}
 	}
 }
@@ -70,7 +70,7 @@ export function mergeRect(val, x, y, w, h, target, targetCols, targetRows) {
 //      etc...
 //	}
 // or just as a string into the target buffer.
-export function mergeText(textObj, x, y, target, targetCols, targetRows) {
+export function mergeTextBuffer(textObj, x, y, target, targetCols, targetRows) {
 	let text, mergeObj
 	// An object has been passed as argument, expect a 'text' field
 	if (typeof textObj == "object") {
@@ -95,10 +95,10 @@ export function mergeText(textObj, x, y, target, targetCols, targetRows) {
 	text.split('\n').forEach((line) => {
 		line.split('').forEach((char, charNum) => {
 			col = x + charNum
-			merge({char, ...mergeObj}, col, row, target, targetCols, targetRows)
+			mergeBuffer({char, ...mergeObj}, col, row, target, targetCols, targetRows)
 		})
-		const first = get(x, row, target, targetCols, targetRows)
-		const last = get(x+line.length-1, row, target, targetCols, targetRows)
+		const first = getBuffer(x, row, target, targetCols, targetRows)
+		const last = getBuffer(x+line.length-1, row, target, targetCols, targetRows)
 		wrapInfo.push({first, last})
 		row++
 	})

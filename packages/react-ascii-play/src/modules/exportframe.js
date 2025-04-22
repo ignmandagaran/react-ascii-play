@@ -1,5 +1,5 @@
 /**
-@module   exportframe.js
+@module   exportframe.cjs
 @desc     Exports a single frame (or a range) to an image
 @category public
 
