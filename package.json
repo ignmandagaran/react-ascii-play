@@ -24,10 +24,17 @@
     "release": "pnpm build && pnpm changeset publish"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.2",
+    "@eslint/js": "^9.25.1",
     "@turbo/gen": "^2.5.0",
+    "@typescript-eslint/eslint-plugin": "^8.31.0",
+    "@typescript-eslint/parser": "^8.31.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.0.0",
     "prettier": "^3.2.5",
-    "turbo": "^2.5.0",
-    "@changesets/cli": "^2.29.2"
+    "turbo": "^2.5.0"
   },
   "packageManager": "pnpm@8.15.4"
 }
