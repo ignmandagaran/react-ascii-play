@@ -1,5 +1,11 @@
 # react-ascii-play
 
+## 0.1.8
+
+### Patch Changes
+
+- fix userData type
+
 ## 0.1.7
 
 ### Patch Changes
