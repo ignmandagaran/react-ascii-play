@@ -113,7 +113,7 @@ export function PlayCoreAscii({
     }
   );
   const rendererRef = useRef<typeof textRenderer | typeof canvasRenderer>(null);
-  const bufferRef = useRef<PlayCoreAsciiBuffer>([]);
+  const bufferRef = useRef<PlayCoreAsciiBuffer[]>([]);
   const frameRef = useRef<number[]>([]);
   const metricsRef = useRef<PlayCoreAsciiMetrics | null>(null);
   const contextRef = useRef<PlayCoreAsciiContext | null>(null);

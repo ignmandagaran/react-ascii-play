@@ -2,7 +2,7 @@ import { PlayCoreAsciiContext, PlayCoreAsciiBuffer, PlayCoreAsciiSettings } from
 
 declare const textRenderer: {
   preferredElementNodeName: 'PRE'
-  render: (context: PlayCoreAsciiContext, buffer: PlayCoreAsciiBuffer, settings: PlayCoreAsciiSettings) => void
+  render: (context: PlayCoreAsciiContext, buffer: PlayCoreAsciiBuffer[], settings: PlayCoreAsciiSettings) => void
 }
 
 export default textRenderer 

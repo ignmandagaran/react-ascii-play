@@ -14,12 +14,12 @@ the array.
 const v = get(10, 10, buffer, cols, rows)
 
 */
-export function get(x: number, y: number, target: PlayCoreAsciiBuffer, targetCols: number, targetRows: number): number;
-export function set(val: number, x: number, y: number, target: PlayCoreAsciiBuffer, targetCols: number, targetRows: number): void;
-export function merge(val: number, x: number, y: number, target: PlayCoreAsciiBuffer, targetCols: number, targetRows: number): void;
-export function setRect(val: number, x: number, y: number, w: number, h: number, target: PlayCoreAsciiBuffer, targetCols: number, targetRows: number): void;
-export function mergeRect(val: number, x: number, y: number, w: number, h: number, target: PlayCoreAsciiBuffer, targetCols: number, targetRows: number): void;
-export function mergeText(textObj: Record<{char: string, color: number}, number>[], x: number, y: number, target: PlayCoreAsciiBuffer, targetCols: number, targetRows: number): {
+export function get(x: number, y: number, target: PlayCoreAsciiBuffer[], targetCols: number, targetRows: number): number;
+export function set(val: number, x: number, y: number, target: PlayCoreAsciiBuffer[], targetCols: number, targetRows: number): void;
+export function merge(val: number, x: number, y: number, target: PlayCoreAsciiBuffer[], targetCols: number, targetRows: number): void;
+export function setRect(val: number, x: number, y: number, w: number, h: number, target: PlayCoreAsciiBuffer[], targetCols: number, targetRows: number): void;
+export function mergeRect(val: number, x: number, y: number, w: number, h: number, target: PlayCoreAsciiBuffer[], targetCols: number, targetRows: number): void;
+export function mergeText(textObj: Record<{char: string, color: number}, number>[], x: number, y: number, target: PlayCoreAsciiBuffer[], targetCols: number, targetRows: number): {
     offset: {
         col: number;
         row: number;

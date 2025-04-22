@@ -1,5 +1,11 @@
 # react-ascii-play
 
+## 0.1.10
+
+### Patch Changes
+
+- fix PlayCoreAsciiBuffer type
+
 ## 0.1.9
 
 ### Patch Changes
