@@ -1,5 +1,11 @@
 # react-ascii-play
 
+## 0.1.6
+
+### Patch Changes
+
+- update lib keywords
+
 ## 0.1.5
 
 ### Patch Changes

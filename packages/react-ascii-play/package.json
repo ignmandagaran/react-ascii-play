@@ -1,6 +1,6 @@
 {
   "name": "react-ascii-play",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -8,6 +8,14 @@
   "license": "MIT",
   "files": [
     "dist/**"
+  ],
+  "keywords": [
+    "react",
+    "ascii",
+    "play",
+    "play.core",
+    "animation",
+    "typescript"
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts",
