@@ -67,7 +67,7 @@ const boxProj = [];
 
 const bgMatrixDim = vec2.create(bgMatrix[0].length, bgMatrix.length);
 
-const torusProgram = {
+const torusProgram: PlayCoreAsciiProgram = {
   pre(context) {
     const t = context.time * 0.01;
     const rot = vec3.create(t * 0.11, t * 0.13, -t * 0.15);
