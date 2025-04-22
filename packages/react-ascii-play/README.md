@@ -32,15 +32,27 @@ import { PlayCoreAscii } from 'react-ascii-play';
 function MyAsciiApp() {
   const program = {
     // Your ASCII art program logic here
-    init: (context) => {
-      // Initialize your ASCII art
+    pre: (context, cursor, buffer, userData) => {
+      // Pre logic
     },
-    update: (context) => {
-      // Update your ASCII art
+    main: (context, cursor, buffer, userData) => {
+      // Main logic
     },
-    render: (context) => {
-      // Render your ASCII art
-    }
+    post: (context, cursor, buffer, userData) => {
+      // Post logic
+    },
+    pointerMove: (context, cursor, buffer, userData, eventData) => {
+      // Pointer move logic
+    },
+    pointerDown: (context, cursor, buffer, userData, eventData) => {
+      // Pointer down logic
+    },
+    pointerUp: (context, cursor, buffer, userData, eventData) => {
+      // Pointer up logic
+    },
+    keyDown: (context, cursor, buffer, userData, eventData) => {
+      // Key down logic
+    },
   };
 
   const settings = {
