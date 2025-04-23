@@ -51,6 +51,8 @@ export interface PlayCoreState {
   cycle: number;
 }
 
+export type AnimationCallback = (time: number) => void;
+
 export interface PlayCoreAsciiSettings {
   cols?: number;
   rows?: number;

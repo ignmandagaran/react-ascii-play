@@ -84,7 +84,7 @@ interface PlayCoreAsciiProps {
   program: PlayCoreAsciiProgram;
   settings: PlayCoreAsciiSettings;
   className?: string;
-  loop?: (callback: (time: number) => void) => void;
+  loop?: (callback: AnimationCallback) => void;
 }
 ```
 

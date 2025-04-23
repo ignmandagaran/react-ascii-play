@@ -1,5 +1,11 @@
 # react-ascii-play
 
+## 0.1.18
+
+### Patch Changes
+
+- fix frameloop delegation
+
 ## 0.1.17
 
 ### Patch Changes

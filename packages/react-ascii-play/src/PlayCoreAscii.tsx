@@ -18,6 +18,7 @@ import {
   PlayCoreAsciiBuffer,
   PlayCoreAsciiMetrics,
   PlayCoreState,
+  AnimationCallback,
 } from "./types";
 import FPS from "./core/fps";
 import React from "react";
@@ -90,8 +91,10 @@ interface PlayCoreAsciiProps {
   program: PlayCoreAsciiProgram;
   settings: PlayCoreAsciiSettings;
   className?: string;
-  // delegate frameloop to the parent
-  loop?: (callback: (time: number) => void) => void;
+  /**
+   * @param callback - Function that receives the current timestamp in milliseconds
+   */
+  loop?: (callback: AnimationCallback) => void;
 }
 
 export function PlayCoreAscii({
@@ -245,59 +248,68 @@ export function PlayCoreAscii({
     [program, getContext, getCursor]
   ) as EventListener;
 
-  const handlePointerDown = useCallback((_e: PointerEvent) => {
-    if (!pointerRef.current) return;
-    pointerRef.current.pressed = true;
+  const handlePointerDown = useCallback(
+    (_e: PointerEvent) => {
+      if (!pointerRef.current) return;
+      pointerRef.current.pressed = true;
 
-    if (program.pointerDown) {
-      const context = getContext();
-      const cursor = getCursor();
-      if (context && cursor) {
-        program.pointerDown(
-          context,
-          cursor,
-          bufferRef.current,
-          userDataRef.current,
-          _e
-        );
+      if (program.pointerDown) {
+        const context = getContext();
+        const cursor = getCursor();
+        if (context && cursor) {
+          program.pointerDown(
+            context,
+            cursor,
+            bufferRef.current,
+            userDataRef.current,
+            _e
+          );
+        }
       }
-    }
-  }, [program, getContext, getCursor]) as EventListener;
+    },
+    [program, getContext, getCursor]
+  ) as EventListener;
 
-  const handlePointerUp = useCallback((_e: PointerEvent) => {
-    if (!pointerRef.current) return;
-    pointerRef.current.pressed = false;
+  const handlePointerUp = useCallback(
+    (_e: PointerEvent) => {
+      if (!pointerRef.current) return;
+      pointerRef.current.pressed = false;
 
-    if (program.pointerUp) {
-      const context = getContext();
-      const cursor = getCursor();
-      if (context && cursor) {
-        program.pointerUp(
-          context,
-          cursor,
-          bufferRef.current,
-          userDataRef.current,
-          _e
-        );
+      if (program.pointerUp) {
+        const context = getContext();
+        const cursor = getCursor();
+        if (context && cursor) {
+          program.pointerUp(
+            context,
+            cursor,
+            bufferRef.current,
+            userDataRef.current,
+            _e
+          );
+        }
       }
-    }
-  }, [program, getContext, getCursor]) as EventListener;
+    },
+    [program, getContext, getCursor]
+  ) as EventListener;
 
-  const handleKeyDown = useCallback((_e: KeyboardEvent) => {
-    if (program.keyDown) {
-      const context = getContext();
-      const cursor = getCursor();
-      if (context && cursor) {
-        program.keyDown(
-          context,
-          cursor,
-          bufferRef.current,
-          userDataRef.current,
-          _e
-        );
+  const handleKeyDown = useCallback(
+    (_e: KeyboardEvent) => {
+      if (program.keyDown) {
+        const context = getContext();
+        const cursor = getCursor();
+        if (context && cursor) {
+          program.keyDown(
+            context,
+            cursor,
+            bufferRef.current,
+            userDataRef.current,
+            _e
+          );
+        }
       }
-    }
-  }, [program, getContext, getCursor]) as EventListener;
+    },
+    [program, getContext, getCursor]
+  ) as EventListener;
 
   const handleVisibilityChange = useCallback(() => {
     if (document.visibilityState === "hidden") {
@@ -401,9 +413,7 @@ export function PlayCoreAscii({
       const delta = time - lastTime;
       if (delta < interval) {
         if (!mergedSettings.once) {
-          if (typeof loop === "function") {
-            loop(animate);
-          } else {
+          if (!(typeof loop === "function")) {
             frameRef.current.push(requestAnimationFrame(animate));
           }
         }
@@ -466,15 +476,13 @@ export function PlayCoreAscii({
 
       lastTime = time - (delta % interval);
       if (!mergedSettings.once) {
-        if (typeof loop === "function") {
-          loop(animate);
-        } else {
+        if (!(typeof loop === "function")) {
           frameRef.current.push(requestAnimationFrame(animate));
         }
       }
     };
 
-    if (typeof loop === "function") {
+    if (typeof loop === "function" && !mergedSettings.once) {
       loop(animate);
     } else {
       frameRef.current.push(requestAnimationFrame(animate));
