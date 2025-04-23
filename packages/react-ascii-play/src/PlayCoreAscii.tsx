@@ -95,6 +95,10 @@ interface PlayCoreAsciiProps {
    * @param callback - Function that receives the current timestamp in milliseconds
    */
   loop?: (callback: AnimationCallback) => void;
+  /**
+   * User data to pass to the program
+   */
+  userData?: Record<string, unknown>;
 }
 
 export function PlayCoreAscii({
@@ -102,6 +106,7 @@ export function PlayCoreAscii({
   settings,
   className,
   loop,
+  userData = {},
 }: PlayCoreAsciiProps) {
   const [rendererReady, setRendererReady] = useState(false);
   const rendererElementRef = useRef<HTMLPreElement | HTMLCanvasElement | null>(
@@ -149,6 +154,7 @@ export function PlayCoreAscii({
     [settings, rendererReady]
   );
 
+  // User data
   const userDataRef = useRef<Record<string, unknown>>({});
 
   // Get current context
@@ -321,6 +327,11 @@ export function PlayCoreAscii({
       setRendererReady(true);
     }
   }, []) as EventListener;
+
+  // Update user data
+  useEffect(() => {
+    userDataRef.current = userData;
+  }, [userData]);
 
   // stop loop when component is not in view
   useEffect(() => {
