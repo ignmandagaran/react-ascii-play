@@ -1,5 +1,11 @@
 # react-ascii-play
 
+## 0.1.17
+
+### Patch Changes
+
+- Refactor type definitions and improve formatting across multiple modules; update module exports to ES6 syntax and enhance function signatures for better clarity.
+
 ## 0.1.16
 
 ### Patch Changes

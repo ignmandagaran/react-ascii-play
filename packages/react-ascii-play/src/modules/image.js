@@ -18,28 +18,27 @@ const color = img.get(10, 10)
 /* eslint-env browser */
 /* global document, console */
 
-import Canvas from './canvas.js'
-import Load from './load.js'
+import Canvas from "./canvas.js";
+import { loadImage } from "./load.js";
 
-export default {
-	load
-}
+export function drawImageOnCanvas(path) {
+  const source = document.createElement("canvas");
+  source.width = 1;
+  source.height = 1;
 
-function load(path) {
+  const canvas = new Canvas(source);
 
-	const source = document.createElement('canvas')
-	source.width = 1
-	source.height = 1
+  loadImage(path)
+    .then((img) => {
+      console.log(
+        "Image " + path + " loaded. Size: " + img.width + "×" + img.height
+      );
+      canvas.resize(img.width, img.height);
+      canvas.copy(img);
+    })
+    .catch(() => {
+      console.warn("There was an error loading image " + path + ".");
+    });
 
-	const can = new Canvas(source)
-
-	Load.image(path).then( img => {
-		console.log('Image ' + path + ' loaded. Size: ' + img.width + '×' + img.height)
-		can.resize(img.width, img.height)
-		can.copy(img)
-	}).catch(() => {
-		console.warn('There was an error loading image ' + path + '.')
-	})
-
-	return can
+  return canvas;
 }

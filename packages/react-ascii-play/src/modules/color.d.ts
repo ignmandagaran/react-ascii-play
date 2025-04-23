@@ -30,11 +30,16 @@ Colors in exported palettes are augmented to:
 }
 
 */
-export function rgb(r: number, g: number, b: number, a?: number): {
-    r: number;
-    g: number;
-    b: number;
-    a: number;
+export function rgb(
+  r: number,
+  g: number,
+  b: number,
+  a?: number
+): {
+  r: number;
+  g: number;
+  b: number;
+  a: number;
 };
 export function hex(r: number, g: number, b: number, a?: number): string;
 export function css(r: number, g: number, b: number, a?: number): string;
@@ -42,10 +47,10 @@ export function rgb2css(rgb: number): string;
 export function rgb2hex(rgb: number): string;
 export function rgb2gray(rgb: number): number;
 export function int2rgb(int: number): {
-    a: number;
-    r: number;
-    g: number;
-    b: number;
+  a: number;
+  r: number;
+  g: number;
+  b: number;
 };
 export const CSS4: Record<string, number | string> = {};
 export const CSS3: Record<string, number | string> = {};

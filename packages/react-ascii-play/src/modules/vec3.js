@@ -296,37 +296,3 @@ export function roundVec3(a, out) {
   out.z = Math.round(a.z);
   return out;
 }
-
-const vec3 = {
-  createVec3,
-  copyVec3,
-  addVec3,
-  subVec3,
-  mulVec3,
-  divVec3,
-  addNVec3,
-  subNVec3,
-  mulNVec3,
-  divNVec3,
-  dotVec3,
-  crossVec3,
-  lengthVec3,
-  lengthSqVec3,
-  distVec3,
-  distSqVec3,
-  normVec3,
-  negVec3,
-  rotXVec3,
-  rotYVec3,
-  rotZVec3,
-  mixVec3,
-  absVec3,
-  maxVec3,
-  minVec3,
-  fractVec3,
-  floorVec3,
-  ceilVec3,
-  roundVec3,
-};
-
-export { vec3 };
