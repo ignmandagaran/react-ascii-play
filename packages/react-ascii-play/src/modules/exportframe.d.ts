@@ -1,7 +1,7 @@
-import { PlayCoreAsciiContext } from "../types";
+import { AsciiBuffer } from "../types";
 
 export function exportFrame(
-  context: PlayCoreAsciiContext,
+  context: AsciiBuffer,
   filename: string,
   from?: number,
   to?: number

@@ -1,5 +1,11 @@
 # react-ascii-play
 
+## 0.1.20
+
+### Patch Changes
+
+- Refactor component names and types in react-ascii-play; replace PlayCoreAscii with ReactAsciiPlay and update related type definitions for consistency.
+
 ## 0.1.19
 
 ### Patch Changes

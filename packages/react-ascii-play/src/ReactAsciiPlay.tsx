@@ -1,28 +1,28 @@
 import { RefObject, useState } from "react";
 
-interface RendererElementProps {
-  renderer: "text" | "canvas";
-  settings?: PlayCoreAsciiSettings;
-  className?: string;
-  ref?: React.RefObject<HTMLPreElement | HTMLCanvasElement | null>;
-}
-
+import type {
+  AsciiRendererSettings,
+  AsciiRendererContext,
+  AsciiRendererCursor,
+  AsciiBuffer,
+  AsciiMetrics,
+  ProgramState,
+  AnimationCallback,
+  AsciiRendererProgram,
+} from "./types";
 import { useEffect, useRef, useCallback, useMemo } from "react";
 import textRenderer from "./core/textrenderer";
 import canvasRenderer from "./core/canvasrenderer";
-import {
-  PlayCoreAsciiSettings,
-  PlayCoreAsciiProgram,
-  PlayCoreAsciiContext,
-  PlayCoreAsciiCursor,
-  PlayCoreAsciiBuffer,
-  PlayCoreAsciiMetrics,
-  PlayCoreState,
-  AnimationCallback,
-} from "./types";
 import FPS from "./core/fps";
 import React from "react";
 import useIntersection from "./hooks/use-intersection";
+
+interface RendererElementProps {
+  renderer: "text" | "canvas";
+  settings?: AsciiRendererSettings;
+  className?: string;
+  ref?: React.RefObject<HTMLPreElement | HTMLCanvasElement | null>;
+}
 
 // Calcs width (fract), height, aspect of a monospaced char
 // assuming that the CSS font-family is a monospaced font.
@@ -66,7 +66,7 @@ export function calcMetrics(el: HTMLPreElement | HTMLCanvasElement) {
   return metrics;
 }
 
-const defaultSettings: PlayCoreAsciiSettings = {
+const defaultSettings: AsciiRendererSettings = {
   cols: 0, // number of columns, 0 is equivalent to 'auto'
   rows: 0, // number of columns, 0 is equivalent to 'auto'
   once: false, // if set to true the renderer will run only once
@@ -87,9 +87,9 @@ const CSSStyles: (keyof CSSStyleDeclaration)[] = [
   "textAlign",
 ];
 
-interface PlayCoreAsciiProps {
-  program: PlayCoreAsciiProgram;
-  settings: PlayCoreAsciiSettings;
+interface ReactAsciiPlayProps {
+  program: AsciiRendererProgram;
+  settings: AsciiRendererSettings;
   className?: string;
   /**
    * @param callback - Function that receives the current timestamp in milliseconds
@@ -101,13 +101,13 @@ interface PlayCoreAsciiProps {
   userData?: Record<string, unknown>;
 }
 
-export function PlayCoreAscii({
+export function ReactAsciiPlay({
   program,
   settings,
   className,
   loop,
   userData = {},
-}: PlayCoreAsciiProps) {
+}: ReactAsciiPlayProps) {
   const [rendererReady, setRendererReady] = useState(false);
   const rendererElementRef = useRef<HTMLPreElement | HTMLCanvasElement | null>(
     null
@@ -121,18 +121,18 @@ export function PlayCoreAscii({
     }
   );
   const rendererRef = useRef<typeof textRenderer | typeof canvasRenderer>(null);
-  const bufferRef = useRef<PlayCoreAsciiBuffer[]>([]);
+  const bufferRef = useRef<AsciiBuffer[]>([]);
   const frameRef = useRef<number[]>([]);
-  const metricsRef = useRef<PlayCoreAsciiMetrics | null>(null);
-  const contextRef = useRef<PlayCoreAsciiContext | null>(null);
+  const metricsRef = useRef<AsciiMetrics | null>(null);
+  const contextRef = useRef<AsciiRendererContext | null>(null);
   const fpsRef = useRef<FPS | null>(null);
-  const stateRef = useRef<PlayCoreState | null>({
+  const stateRef = useRef<ProgramState | null>({
     time: 0,
     frame: 0,
     cycle: 0,
   });
 
-  const pointerRef = useRef<PlayCoreAsciiCursor | null>({
+  const pointerRef = useRef<AsciiRendererCursor | null>({
     x: 0,
     y: 0,
     pressed: false,
@@ -144,7 +144,7 @@ export function PlayCoreAscii({
   });
 
   // Merge settings with defaults
-  const mergedSettings: PlayCoreAsciiSettings = useMemo(
+  const mergedSettings: AsciiRendererSettings = useMemo(
     () => ({
       ...defaultSettings,
       ...settings,
@@ -158,7 +158,7 @@ export function PlayCoreAscii({
   const userDataRef = useRef<Record<string, unknown>>({});
 
   // Get current context
-  const getContext = useCallback((): PlayCoreAsciiContext | null => {
+  const getContext = useCallback((): AsciiRendererContext | null => {
     if (!rendererElementRef.current || !metricsRef.current) return null;
 
     const rect = rendererElementRef.current.getBoundingClientRect();
@@ -186,7 +186,7 @@ export function PlayCoreAscii({
   }, [mergedSettings]);
 
   // Get current cursor
-  const getCursor = useCallback((): PlayCoreAsciiCursor | null => {
+  const getCursor = useCallback((): AsciiRendererCursor | null => {
     const context = getContext();
     if (!context || !metricsRef.current) return null;
 
@@ -382,10 +382,10 @@ export function PlayCoreAscii({
 
     // Apply CSS settings to element
     for (const s of CSSStyles) {
-      if (mergedSettings[s as keyof PlayCoreAsciiSettings])
+      if (mergedSettings[s as keyof AsciiRendererSettings])
         // @ts-expect-error - TODO: check
         rendererElement.style[s] =
-          mergedSettings[s as keyof PlayCoreAsciiSettings];
+          mergedSettings[s as keyof AsciiRendererSettings];
     }
 
     // Initialize buffer
@@ -455,7 +455,7 @@ export function PlayCoreAscii({
           const offs = j * context.cols;
           for (let i = 0; i < context.cols; i++) {
             const idx = i + offs;
-            let out: string | PlayCoreAsciiBuffer | void | undefined =
+            let out: string | AsciiBuffer | void | undefined =
               undefined;
             out = program.main(
               { x: i, y: j, index: idx },

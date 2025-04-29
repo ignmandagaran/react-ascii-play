@@ -7,6 +7,7 @@
 @desc   The cursor controls box thickness and exp
 */
 
+import { AsciiRendererProgram } from "react-ascii-play";
 import { mapNum } from "react-ascii-play/modules/num";
 import { drawInfo } from "react-ascii-play/modules/drawbox";
 import { createVec3, copyVec3, rotXVec3, rotYVec3, rotZVec3 } from "react-ascii-play/modules/vec3";
@@ -69,7 +70,7 @@ const boxProj = [];
 
 const bgMatrixDim = createVec2(bgMatrix[0].length, bgMatrix.length);
 
-const torusProgram: PlayCoreAsciiProgram = {
+const torusProgram: AsciiRendererProgram = {
   pre(context) {
     const t = context.time * 0.01;
     const rot = createVec3(t * 0.11, t * 0.13, -t * 0.15);

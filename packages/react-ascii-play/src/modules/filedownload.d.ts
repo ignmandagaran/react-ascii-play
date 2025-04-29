@@ -1,10 +1,10 @@
-import { PlayCoreAsciiBuffer } from "../types";
+import { AsciiBuffer } from "../types";
 
 export function saveSourceAsFile(
-  src: PlayCoreAsciiBuffer[],
+  src: AsciiBuffer[],
   filename: string
 ): void;
 export function saveBlobAsFile(
-  blob: PlayCoreAsciiBuffer[],
+  blob: AsciiBuffer[],
   filename: string
 ): void;

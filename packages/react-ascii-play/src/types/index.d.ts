@@ -1,4 +1,4 @@
-export interface PlayCoreAsciiMetrics {
+export interface AsciiMetrics {
   cellWidth: number;
   lineHeight: number;
   fontFamily: string;
@@ -6,22 +6,22 @@ export interface PlayCoreAsciiMetrics {
   aspect: number;
 }
 
-export interface PlayCoreAsciiContext {
+export interface AsciiRendererContext {
   frame: number;
   time: number;
   cols: number;
   rows: number;
-  metrics: PlayCoreAsciiMetrics;
+  metrics: AsciiMetrics;
   width: number;
   height: number;
-  settings: PlayCoreAsciiSettings;
+  settings: AsciiRendererSettings;
   runtime: {
     cycle: number;
     fps: number;
   };
 }
 
-export interface PlayCoreAsciiCursor {
+export interface AsciiRendererCursor {
   x: number;
   y: number;
   pressed: boolean;
@@ -32,20 +32,20 @@ export interface PlayCoreAsciiCursor {
   };
 }
 
-export interface PlayCoreAsciiCell {
+export interface AsciiCell {
   x: number;
   y: number;
   index: number;
 }
 
-export interface PlayCoreAsciiBuffer {
+export interface AsciiBuffer {
   char: string | number;
   color?: string;
   backgroundColor?: string;
   fontWeight?: string;
 }
 
-export interface PlayCoreState {
+export interface ProgramState {
   time: number;
   frame: number;
   cycle: number;
@@ -53,7 +53,7 @@ export interface PlayCoreState {
 
 export type AnimationCallback = (time: number) => void;
 
-export interface PlayCoreAsciiSettings {
+export interface AsciiRendererSettings {
   cols?: number;
   rows?: number;
   fps?: number;
@@ -75,58 +75,57 @@ export interface PlayCoreAsciiSettings {
   };
 }
 
-export interface PlayCoreAsciiProgram {
+export interface AsciiRendererProgram {
   boot?: (
-    context: PlayCoreAsciiContext,
-    buffer: PlayCoreAsciiBuffer[],
+    context: AsciiRendererContext,
+    buffer: AsciiBuffer[],
     userData?: Record<string, unknown>
   ) => void;
   pre?: (
-    context: PlayCoreAsciiContext,
-    cursor: PlayCoreAsciiCursor,
-    buffer: PlayCoreAsciiBuffer[],
+    context: AsciiRendererContext,
+    cursor: AsciiRendererCursor,
+    buffer: AsciiBuffer[],
     userData?: Record<string, unknown>
   ) => void;
   main?: (
-    cell: PlayCoreAsciiCell,
-    context: PlayCoreAsciiContext,
-    cursor: PlayCoreAsciiCursor,
-    buffer: PlayCoreAsciiBuffer[],
+    cell: AsciiCell,
+    context: AsciiRendererContext,
+    cursor: AsciiRendererCursor,
+    buffer: AsciiBuffer[],
     userData?: Record<string, unknown>
-  ) => void | PlayCoreAsciiBuffer | string;
+  ) => void | AsciiBuffer | string;
   post?: (
-    context: PlayCoreAsciiContext,
-    cursor: PlayCoreAsciiCursor,
-    buffer: PlayCoreAsciiBuffer[],
+    context: AsciiRendererContext,
+    cursor: AsciiRendererCursor,
+    buffer: AsciiBuffer[],
     userData?: Record<string, unknown>
   ) => void;
   pointerMove?: (
-    context: PlayCoreAsciiContext,
-    cursor: PlayCoreAsciiCursor,
-    buffer: PlayCoreAsciiBuffer[],
+    context: AsciiRendererContext,
+    cursor: AsciiRendererCursor,
+    buffer: AsciiBuffer[],
     userData?: Record<string, unknown>,
     eventData?: PointerEvent
   ) => void;
   pointerDown?: (
-    context: PlayCoreAsciiContext,
-    cursor: PlayCoreAsciiCursor,
-    buffer: PlayCoreAsciiBuffer[],
+    context: AsciiRendererContext,
+    cursor: AsciiRendererCursor,
+    buffer: AsciiBuffer[],
     userData?: Record<string, unknown>,
     eventData?: PointerEvent
   ) => void;
   pointerUp?: (
-    context: PlayCoreAsciiContext,
-    cursor: PlayCoreAsciiCursor,
-    buffer: PlayCoreAsciiBuffer[],
+    context: AsciiRendererContext,
+    cursor: AsciiRendererCursor,
+    buffer: AsciiBuffer[],
     userData?: Record<string, unknown>,
     eventData?: PointerEvent
   ) => void;
   keyDown?: (
-    context: PlayCoreAsciiContext,
-    cursor: PlayCoreAsciiCursor,
-    buffer: PlayCoreAsciiBuffer[],
+    context: AsciiRendererContext,
+    cursor: AsciiRendererCursor,
+    buffer: AsciiBuffer[],
     userData?: Record<string, unknown>,
     eventData?: KeyboardEvent
   ) => void;
-  settings?: PlayCoreAsciiSettings;
 }

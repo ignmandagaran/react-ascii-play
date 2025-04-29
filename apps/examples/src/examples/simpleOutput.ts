@@ -1,8 +1,8 @@
-import { PlayCoreAsciiProgram } from "react-ascii-play";
+import { AsciiRendererProgram } from "react-ascii-play";
 
 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ.:!?";
 
-const simpleOutput: PlayCoreAsciiProgram = {
+const simpleOutput: AsciiRendererProgram = {
   main: (cell, context) => {
     const { x, y } = cell;
     const f = context.frame;

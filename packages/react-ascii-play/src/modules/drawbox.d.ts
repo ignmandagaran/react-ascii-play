@@ -1,15 +1,15 @@
-import { PlayCoreAsciiBuffer } from "../types";
+import { AsciiBuffer, AsciiRendererContext, AsciiRendererCursor } from "../types";
 
 export function drawBox(
   text: string,
   style: Record<string, number | string>,
-  target: PlayCoreAsciiBuffer[],
+  target: AsciiBuffer[],
   targetCols: number,
   targetRows: number
 ): void;
 export function drawInfo(
-  context: PlayCoreAsciiContext,
-  cursor: PlayCoreAsciiCursor,
-  target: PlayCoreAsciiBuffer[],
+  context: AsciiRendererContext,
+  cursor: AsciiRendererCursor,
+  target: AsciiBuffer[],
   style?: Record<string, number | string>
 ): void;

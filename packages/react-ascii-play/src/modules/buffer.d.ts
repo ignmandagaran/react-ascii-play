@@ -1,4 +1,4 @@
-import { PlayCoreAsciiBuffer } from "../types";
+import { AsciiBuffer } from "../types";
 
 /**
 @module   buffer.js
@@ -17,7 +17,7 @@ const v = get(10, 10, buffer, cols, rows)
 export function getBuffer(
   x: number,
   y: number,
-  target: PlayCoreAsciiBuffer[],
+  target: AsciiBuffer[],
   targetCols: number,
   targetRows: number
 ): number;
@@ -25,7 +25,7 @@ export function setBuffer(
   val: number,
   x: number,
   y: number,
-  target: PlayCoreAsciiBuffer[],
+  target: AsciiBuffer[],
   targetCols: number,
   targetRows: number
 ): void;
@@ -33,7 +33,7 @@ export function mergeBuffer(
   val: number,
   x: number,
   y: number,
-  target: PlayCoreAsciiBuffer[],
+  target: AsciiBuffer[],
   targetCols: number,
   targetRows: number
 ): void;
@@ -43,7 +43,7 @@ export function setRectBuffer(
   y: number,
   w: number,
   h: number,
-  target: PlayCoreAsciiBuffer[],
+  target: AsciiBuffer[],
   targetCols: number,
   targetRows: number
 ): void;
@@ -53,7 +53,7 @@ export function mergeRectBuffer(
   y: number,
   w: number,
   h: number,
-  target: PlayCoreAsciiBuffer[],
+  target: AsciiBuffer[],
   targetCols: number,
   targetRows: number
 ): void;
@@ -61,7 +61,7 @@ export function mergeTextBuffer(
   textObj: Record<{ char: string; color: number }, number>[],
   x: number,
   y: number,
-  target: PlayCoreAsciiBuffer[],
+  target: AsciiBuffer[],
   targetCols: number,
   targetRows: number
 ): {

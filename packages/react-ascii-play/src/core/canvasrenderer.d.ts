@@ -1,8 +1,8 @@
-import { PlayCoreAsciiContext, PlayCoreAsciiBuffer, PlayCoreAsciiSettings } from '../types'
+import { AsciiRendererContext, AsciiBuffer, AsciiRendererSettings } from '../types'
 
 declare const canvasRenderer: {
   preferredElementNodeName: 'CANVAS'
-  render: (context: PlayCoreAsciiContext, buffer: PlayCoreAsciiBuffer[], settings: PlayCoreAsciiSettings) => void
+  render: (context: AsciiRendererContext, buffer: AsciiBuffer[], settings: AsciiRendererSettings) => void
 }
 
 export default canvasRenderer 

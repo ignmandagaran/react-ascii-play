@@ -27,7 +27,7 @@ pnpm add react-ascii-play
 ## Quick Start
 
 ```tsx
-import { PlayCoreAscii } from 'react-ascii-play';
+import { AsciiRendererSettings, ReactAsciiPlay } from 'react-ascii-play';
 
 function MyAsciiApp() {
   const program = {
@@ -55,7 +55,7 @@ function MyAsciiApp() {
     },
   };
 
-  const settings = {
+  const settings: AsciiRendererSettings = {
     width: 80,
     height: 24,
     renderer: 'text', // or 'canvas'
@@ -63,7 +63,7 @@ function MyAsciiApp() {
   };
 
   return (
-    <PlayCoreAscii 
+    <ReactAsciiPlay 
       program={program}
       settings={settings}
     />
@@ -75,14 +75,14 @@ function MyAsciiApp() {
 
 ### Core Components
 
-#### `PlayCoreAscii`
+#### `ReactAsciiPlay`
 
 The main component for rendering ASCII art.
 
 ```tsx
-interface PlayCoreAsciiProps {
-  program: PlayCoreAsciiProgram;
-  settings: PlayCoreAsciiSettings;
+interface ReactAsciiPlayProps {
+  program: AsciiRendererProgram;
+  settings: AsciiRendererSettings;
   className?: string;
   loop?: (callback: AnimationCallback) => void;
 }
