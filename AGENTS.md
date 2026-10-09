@@ -33,7 +33,7 @@ CI (`.github/workflows/ci.yml`) runs lint, typecheck, test and build. Run all fo
 - **Canvas renderer invariants** (each one is tested):
   - Whitespace cells still set `fillStyle`. An invalid color on a later cell leaves the previous fill in place, so skipping it changes output.
   - Resize the canvas only when the assigned size changes. Compare against the last assigned value, not `canvas.width`, which truncates.
-  - Without a resize there is no automatic clear, so clear before filling the background.
+  - Without a resize there is no automatic clear or state reset, so clear, and reset `fillStyle` to black, before filling the background (an invalid background color must not inherit the last cell's color).
 - **Module declarations must match the JS.** When you add, rename or remove an export in `src/modules/*.js`, update its `.d.ts`. `test/module-exports.test.ts` and `test/types/consumer.tsx` (run by `typecheck`) fail otherwise.
 - **Text renderer writes `innerHTML`.** Cell chars and style values are escaped. `beginHTML`/`endHTML` are written raw on purpose and must stay trusted-only.
 - **Lifecycle semantics** (tested in `test/ReactAsciiPlay.test.tsx`):

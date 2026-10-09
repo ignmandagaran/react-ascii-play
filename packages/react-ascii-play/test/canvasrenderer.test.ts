@@ -55,6 +55,8 @@ const cases: Case[] = [
   { name: "opaque settings colors", settings: { backgroundColor: "black", color: "white", fontWeight: "700" } },
   { name: "translucent background over frames", settings: { backgroundColor: "rgba(0,128,255,0.3)" }, frames: 5 },
   { name: "transparent background", settings: { backgroundColor: "transparent" } },
+  // An invalid background leaves fillStyle unchanged; it must not inherit the previous frame's last cell color.
+  { name: "invalid background color over frames", settings: { backgroundColor: "not-a-color" }, frames: 4 },
   { name: "canvasSize + auto offset", settings: { canvasSize: { width: 320, height: 200 }, canvasOffset: { x: "auto", y: "auto" } } },
   { name: "numeric offset", settings: { canvasOffset: { x: 13.6, y: 7.2 } } },
   { name: "centered text", settings: { textAlign: "center" } },

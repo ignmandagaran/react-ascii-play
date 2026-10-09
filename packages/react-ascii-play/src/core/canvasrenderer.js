@@ -72,6 +72,9 @@ export function createCanvasRenderer() {
 			const background = settings.backgroundColor || 'white'
 			ctx.setTransform(1, 0, 0, 1, 0, 0)
 			ctx.clearRect(0, 0, canvas.width, canvas.height)
+			// A resize would also reset fillStyle to its default. Do it by hand so an
+			// invalid background falls back to black, not the last cell's color.
+			ctx.fillStyle = '#000000'
 			ctx.fillStyle = background
 			ctx.fillRect(0, 0, canvas.width, canvas.height)
 			let fill = background
