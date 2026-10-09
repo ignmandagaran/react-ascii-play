@@ -8,7 +8,11 @@ https://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
 */
 
 import { clampNum, mixNum } from "./num.js";
-import { lengthVec2, subVec2, dotVec2, mulNVec2 } from "./vec2.js";
+import { lengthVec2 } from "./vec2.js";
+
+// sdBox and sdSegment run per cell, often many times per cell: they use plain
+// numbers instead of vec2 helpers (which allocate), with the same operation
+// order so results are bit-identical.
 
 export function sdCircle(p, radius) {
   // vec2, float
@@ -17,20 +21,20 @@ export function sdCircle(p, radius) {
 
 export function sdBox(p, size) {
   // vec2, vec2
-  const d = {
-    x: Math.abs(p.x) - size.x,
-    y: Math.abs(p.y) - size.y,
-  };
-  d.x = Math.max(d.x, 0);
-  d.y = Math.max(d.y, 0);
-  return lengthVec2(d) + Math.min(Math.max(d.x, d.y), 0.0);
+  const dx = Math.max(Math.abs(p.x) - size.x, 0);
+  const dy = Math.max(Math.abs(p.y) - size.y, 0);
+  return Math.sqrt(dx * dx + dy * dy) + Math.min(Math.max(dx, dy), 0.0);
 }
 
 export function sdSegment(p, a, b, thickness) {
-  const pa = subVec2(p, a);
-  const ba = subVec2(b, a);
-  const h = clampNum(dotVec2(pa, ba) / dotVec2(ba, ba), 0.0, 1.0);
-  return lengthVec2(subVec2(pa, mulNVec2(ba, h))) - thickness;
+  const pax = p.x - a.x;
+  const pay = p.y - a.y;
+  const bax = b.x - a.x;
+  const bay = b.y - a.y;
+  const h = clampNum((pax * bax + pay * bay) / (bax * bax + bay * bay), 0.0, 1.0);
+  const dx = pax - bax * h;
+  const dy = pay - bay * h;
+  return Math.sqrt(dx * dx + dy * dy) - thickness;
 }
 
 export function opSmoothUnion(d1, d2, k) {
