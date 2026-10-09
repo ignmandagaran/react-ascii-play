@@ -39,14 +39,20 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "lint": "eslint \"src/**/*.ts*\"",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit -p . && tsc --noEmit -p test",
+    "lint": "eslint \"src/**/*.ts*\" \"test/**/*.ts*\"",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
   "devDependencies": {
+    "@happy-dom/global-registrator": "^20.14.6",
+    "@types/bun": "^1.4.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "eslint": "^10.12.0",
     "prettier": "^3.9.9",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
     "tsup": "^8.5.1",
     "typescript": "~6.0.3"
   },
