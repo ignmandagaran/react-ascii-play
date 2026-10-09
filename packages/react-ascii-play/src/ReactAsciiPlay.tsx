@@ -20,6 +20,8 @@ import useIntersection from "./hooks/use-intersection";
 
 interface RendererElementProps {
   renderer: "text" | "canvas";
+  // Key events only reach an element that can take focus.
+  focusable?: boolean;
   settings?: AsciiRendererSettings;
   className?: string;
   ref?: React.RefObject<HTMLPreElement | HTMLCanvasElement | null>;
@@ -301,9 +303,12 @@ export function ReactAsciiPlay({
       program.boot?.(context, session.buffer, userDataRef.current);
     }
 
+    // Metrics depend on the font: re-measure on resize (zoom) and once a web
+    // font finishes loading, since the first measurement may have used a fallback.
     const onResize = () => {
       session.metrics = calcMetrics(element);
     };
+    const fonts = typeof document !== "undefined" ? document.fonts : undefined;
 
     type PointerHandlerName = "pointerMove" | "pointerDown" | "pointerUp";
     const callProgram = (name: PointerHandlerName | "keyDown", event: Event) => {
@@ -343,6 +348,7 @@ export function ReactAsciiPlay({
     // The pre/canvas union loses addEventListener's typed event map.
     const target: HTMLElement = element;
     window.addEventListener("resize", onResize, { passive: true });
+    fonts?.addEventListener("loadingdone", onResize);
     target.addEventListener("pointermove", onPointerMove, { passive: true });
     target.addEventListener("pointerdown", onPointerDown, { passive: true });
     target.addEventListener("pointerup", onPointerUp, { passive: true });
@@ -350,6 +356,7 @@ export function ReactAsciiPlay({
 
     return () => {
       window.removeEventListener("resize", onResize);
+      fonts?.removeEventListener("loadingdone", onResize);
       target.removeEventListener("pointermove", onPointerMove);
       target.removeEventListener("pointerdown", onPointerDown);
       target.removeEventListener("pointerup", onPointerUp);
@@ -470,6 +477,7 @@ export function ReactAsciiPlay({
     <RendererElement
       className={className}
       renderer={mergedSettings.renderer || "text"}
+      focusable={typeof program.keyDown === "function"}
       ref={rendererElementRef}
     />
   );
@@ -477,6 +485,7 @@ export function ReactAsciiPlay({
 
 const RendererElement: React.FC<RendererElementProps> = ({
   renderer,
+  focusable,
   ref,
   className,
 }) => {
@@ -487,6 +496,7 @@ const RendererElement: React.FC<RendererElementProps> = ({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ref={ref as any}
       className={className}
+      tabIndex={focusable ? 0 : undefined}
       style={{
         width: "100%",
         height: "100%",

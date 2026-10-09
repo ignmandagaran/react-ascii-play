@@ -164,6 +164,51 @@ describe("ReactAsciiPlay lifecycle", () => {
   });
 });
 
+describe("ReactAsciiPlay input and metrics", () => {
+  test("programs with keyDown get a focusable element that receives key events", () => {
+    const keys: string[] = [];
+    const program: AsciiRendererProgram = {
+      main: () => "x",
+      keyDown(context, _cursor, _buffer, _userData, event) {
+        keys.push(`${event?.key}@${context.cols}x${context.rows}`);
+      },
+    };
+    render(<ReactAsciiPlay program={program} settings={baseSettings} />);
+    const pre = container.querySelector("pre")!;
+    expect(pre.tabIndex).toBe(0);
+    pre.focus();
+    expect(document.activeElement).toBe(pre);
+    act(() => {
+      pre.dispatchEvent(new KeyboardEvent("keydown", { key: "a", bubbles: true }));
+    });
+    expect(keys).toEqual([`a@${COLS}x${ROWS}`]);
+  });
+
+  test("programs without keyDown don't add a tab stop", () => {
+    const { program } = makeProgram();
+    render(<ReactAsciiPlay program={program} settings={baseSettings} />);
+    expect(container.querySelector("pre")!.hasAttribute("tabindex")).toBe(false);
+  });
+
+  test("re-measures cells when a web font finishes loading", () => {
+    const cols: number[] = [];
+    const program: AsciiRendererProgram = {
+      pre(context) {
+        cols.push(context.cols);
+      },
+    };
+    render(<ReactAsciiPlay program={program} settings={baseSettings} />);
+    frames(1);
+    // The loaded font is wider: 10px cells instead of 8px.
+    installLayout(400, 96, 10);
+    act(() => {
+      document.fonts.dispatchEvent(new Event("loadingdone"));
+    });
+    frames(1);
+    expect(cols).toEqual([COLS, 40]);
+  });
+});
+
 describe("ReactAsciiPlay with an external loop", () => {
   test("callbacks a replaced loop still holds do nothing", () => {
     const { program, stats } = makeProgram();
