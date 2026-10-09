@@ -1,8 +1,9 @@
 import { AsciiRendererContext, AsciiBuffer, AsciiRendererSettings } from '../types'
 
-declare const canvasRenderer: {
+export interface CanvasRenderer {
   preferredElementNodeName: 'CANVAS'
   render: (context: AsciiRendererContext, buffer: AsciiBuffer[], settings: AsciiRendererSettings) => void
+  dispose: () => void
 }
 
-export default canvasRenderer 
+export declare function createCanvasRenderer(): CanvasRenderer

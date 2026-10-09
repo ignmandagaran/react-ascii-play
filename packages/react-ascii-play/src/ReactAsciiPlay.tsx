@@ -12,7 +12,7 @@ import type {
 } from "./types";
 import { useEffect, useRef, useCallback, useMemo } from "react";
 import textRenderer from "./core/textrenderer";
-import canvasRenderer from "./core/canvasrenderer";
+import { createCanvasRenderer, type CanvasRenderer } from "./core/canvasrenderer";
 import FPS from "./core/fps";
 import React from "react";
 import useIntersection from "./hooks/use-intersection";
@@ -120,7 +120,7 @@ export function ReactAsciiPlay({
       rootMargin: settings.intersection?.rootMargin || "0px",
     }
   );
-  const rendererRef = useRef<typeof textRenderer | typeof canvasRenderer>(null);
+  const rendererRef = useRef<typeof textRenderer | CanvasRenderer>(null);
   const bufferRef = useRef<AsciiBuffer[]>([]);
   const frameRef = useRef<number[]>([]);
   const metricsRef = useRef<AsciiMetrics | null>(null);
@@ -378,7 +378,9 @@ export function ReactAsciiPlay({
 
     // Initialize renderer
     rendererRef.current =
-      mergedSettings.renderer === "canvas" ? canvasRenderer : textRenderer;
+      mergedSettings.renderer === "canvas"
+        ? createCanvasRenderer()
+        : textRenderer;
 
     // Apply CSS settings to element
     for (const s of CSSStyles) {
@@ -547,6 +549,11 @@ export function ReactAsciiPlay({
           handleKeyDown as EventListener
         );
       }
+
+      if (rendererRef.current && "dispose" in rendererRef.current) {
+        rendererRef.current.dispose();
+      }
+      rendererRef.current = null;
 
       // clean up refs
       bufferRef.current = [];
