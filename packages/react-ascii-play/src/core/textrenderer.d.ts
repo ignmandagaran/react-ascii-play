@@ -1,8 +1,9 @@
 import { AsciiRendererContext, AsciiBuffer, AsciiRendererSettings } from '../types'
 
-declare const textRenderer: {
+export interface TextRenderer {
   preferredElementNodeName: 'PRE'
   render: (context: AsciiRendererContext, buffer: AsciiBuffer[], settings: AsciiRendererSettings) => void
+  dispose: () => void
 }
 
-export default textRenderer 
+export declare function createTextRenderer(): TextRenderer

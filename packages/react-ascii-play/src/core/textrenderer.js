@@ -4,11 +4,14 @@
 @category renderer
 */
 
-const backBuffer = []
+// Each instance keeps its own back buffer: a shared one would make every
+// instance redraw all rows, since it would diff against another instance's frame.
+export function createTextRenderer() {
+	const backBuffer = []
 
-let cols, rows
+	let cols, rows
 
-const textRenderer = {
+	return {
 	preferredElementNodeName: 'PRE',
 	render: (context, buffer) => {
 
@@ -128,10 +131,10 @@ const textRenderer = {
 		// Write the row
 		element.childNodes[j].innerHTML = html
 	}
+	},
+	dispose: () => {},
 	}
-};
-
-export default textRenderer;
+}
 
 // Compares two cells
 function isSameCell(cellA, cellB) {
