@@ -14,15 +14,21 @@ the array.
 const v = get(10, 10, buffer, cols, rows)
 
 */
+/** A cell to merge: any subset of cell fields. */
+export type CellValue = Partial<AsciiBuffer>;
+
+/** Text to merge, either plain or with cell fields applied to every char. */
+export type TextValue = string | (Partial<Omit<AsciiBuffer, "char">> & { text: string });
+
 export function getBuffer(
   x: number,
   y: number,
   target: AsciiBuffer[],
   targetCols: number,
   targetRows: number
-): number;
+): Partial<AsciiBuffer> | undefined;
 export function setBuffer(
-  val: number,
+  val: AsciiBuffer,
   x: number,
   y: number,
   target: AsciiBuffer[],
@@ -30,7 +36,7 @@ export function setBuffer(
   targetRows: number
 ): void;
 export function mergeBuffer(
-  val: number,
+  val: CellValue,
   x: number,
   y: number,
   target: AsciiBuffer[],
@@ -38,7 +44,7 @@ export function mergeBuffer(
   targetRows: number
 ): void;
 export function setRectBuffer(
-  val: number,
+  val: AsciiBuffer,
   x: number,
   y: number,
   w: number,
@@ -48,7 +54,7 @@ export function setRectBuffer(
   targetRows: number
 ): void;
 export function mergeRectBuffer(
-  val: number,
+  val: CellValue,
   x: number,
   y: number,
   w: number,
@@ -58,7 +64,7 @@ export function mergeRectBuffer(
   targetRows: number
 ): void;
 export function mergeTextBuffer(
-  textObj: Record<{ char: string; color: number }, number>[],
+  textObj: TextValue,
   x: number,
   y: number,
   target: AsciiBuffer[],
@@ -69,5 +75,8 @@ export function mergeTextBuffer(
     col: number;
     row: number;
   };
-  wrapInfo: number[];
+  wrapInfo: {
+    first: Partial<AsciiBuffer> | undefined;
+    last: Partial<AsciiBuffer> | undefined;
+  }[];
 };

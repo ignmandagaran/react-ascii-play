@@ -3,9 +3,21 @@
   "compilerOptions": {
     "rootDir": "..",
     "noEmit": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "allowJs": true,
-    "types": ["bun"]
+    "types": [
+      "bun"
+    ]
   },
-  "include": ["./**/*", "../src/**/*"]
+  "include": [
+    "./**/*",
+    "../src/**/*"
+  ],
+  "exclude": [
+    "./types"
+  ]
 }

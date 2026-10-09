@@ -90,14 +90,10 @@ const CSSStyles: (keyof CSSStyleDeclaration)[] = [
 
 const emptyUserData: Record<string, unknown> = {};
 
-interface SessionSettings extends AsciiRendererSettings {
-  element: HTMLPreElement | HTMLCanvasElement;
-}
-
 // Everything that lives from (re)start to teardown. Pausing keeps it intact.
 interface Session {
   element: HTMLPreElement | HTMLCanvasElement;
-  settings: SessionSettings;
+  settings: AsciiRendererContext["settings"];
   renderer: TextRenderer | CanvasRenderer;
   metrics: AsciiMetrics | null;
   buffer: AsciiBuffer[];

@@ -27,6 +27,8 @@ Load.image('assets/1/colors.png').then( img => {
 
 */
 
-export function loadJson(url: string): Promise<any>;
-export function loadImage(url: string): Promise<HTMLImageElement>;
+/** Resolves to the parsed JSON, or `{}` if loading or parsing fails. */
+export function loadJson(url: string): Promise<unknown>;
+/** Resolves to `null` if the image fails to load. */
+export function loadImage(url: string): Promise<HTMLImageElement | null>;
 export function loadText(url: string): Promise<string>;

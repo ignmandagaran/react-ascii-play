@@ -41,6 +41,7 @@
     "dev": "tsup --watch",
     "test": "bun test",
     "typecheck": "tsc --noEmit -p . && tsc --noEmit -p test",
+    "check:types": "tsc -p test/types",
     "lint": "eslint \"src/**/*.ts*\" \"test/**/*.ts*\"",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },

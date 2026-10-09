@@ -14,7 +14,10 @@ export interface AsciiRendererContext {
   metrics: AsciiMetrics;
   width: number;
   height: number;
-  settings: AsciiRendererSettings;
+  settings: AsciiRendererSettings & {
+    /** The element being rendered to: a `pre` (text) or `canvas`. */
+    element: HTMLPreElement | HTMLCanvasElement;
+  };
   runtime: {
     cycle: number;
     fps: number;
@@ -68,6 +71,16 @@ export interface AsciiRendererSettings {
   letterSpacing?: string;
   lineHeight?: string;
   textAlign?: "left" | "center" | "right";
+  /** Canvas renderer only: fixed canvas size in CSS pixels instead of the element size. */
+  canvasSize?: {
+    width: number;
+    height: number;
+  };
+  /** Canvas renderer only: grid offset in CSS pixels; "auto" centers the grid. */
+  canvasOffset?: {
+    x: number | "auto";
+    y: number | "auto";
+  };
   intersection?: {
     threshold?: number;
     root?: HTMLElement;

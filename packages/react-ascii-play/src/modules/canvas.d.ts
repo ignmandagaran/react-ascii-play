@@ -1,8 +1,8 @@
-export const MODE_COVER: symbol = Symbol("cover");
-export const MODE_FIT: symbol = Symbol("fit");
-export const MODE_CENTER: symbol = Symbol("center");
+export const MODE_COVER: unique symbol;
+export const MODE_FIT: unique symbol;
+export const MODE_CENTER: unique symbol;
 
-interface ColorObject {
+export interface ColorObject {
   r: number;
   g: number;
   b: number;

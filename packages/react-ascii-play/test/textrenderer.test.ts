@@ -4,16 +4,16 @@ import type { AsciiBuffer, AsciiRendererContext, AsciiRendererSettings } from ".
 
 const metrics = { cellWidth: 8, lineHeight: 16, fontSize: 16, fontFamily: "monospace", aspect: 0.5 };
 
-function makeContext(element: HTMLElement, cols: number, rows: number, settings: AsciiRendererSettings = {}): AsciiRendererContext {
+function makeContext(element: HTMLPreElement, cols: number, rows: number, settings: AsciiRendererSettings = {}): AsciiRendererContext {
   return {
     frame: 0, time: 0, cols, rows, metrics,
     width: cols * metrics.cellWidth, height: rows * metrics.lineHeight,
-    settings: { ...settings, element } as AsciiRendererSettings,
+    settings: { ...settings, element },
     runtime: { cycle: 0, fps: 60 },
   };
 }
 
-const rowsOf = (pre: HTMLElement) => Array.from(pre.children).map((row) => row.textContent);
+const rowsOf = (pre: HTMLPreElement) => Array.from(pre.children).map((row) => row.textContent);
 
 function fill(cols: number, rows: number, char: (i: number) => string): AsciiBuffer[] {
   return Array.from({ length: cols * rows }, (_, i) => ({ char: char(i) }));

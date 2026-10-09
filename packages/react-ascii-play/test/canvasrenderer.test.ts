@@ -21,7 +21,7 @@ function makeContext(rec: RecordingCanvas, settings: Record<string, unknown>, wi
     metrics,
     width,
     height,
-    settings: { ...settings, element: rec.canvas } as AsciiRendererSettings,
+    settings: { ...(settings as AsciiRendererSettings), element: rec.canvas },
     runtime: { cycle: 0, fps: 60 },
   };
 }

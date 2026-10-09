@@ -9,7 +9,7 @@ The fontFamily paramter needs to be set because it's used by the canvas element
 to draw the correct font.
 */
 export function sortAscii(
-  charSet: string[],
+  charSet: string,
   fontFamily: string,
   ascending?: boolean
-): string[];
+): string;
