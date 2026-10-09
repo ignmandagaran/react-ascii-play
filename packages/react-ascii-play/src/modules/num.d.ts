@@ -23,3 +23,14 @@ export function smootherstepNum(
   t: number
 ): number;
 export function modNum(a: number, b: number): number;
+
+declare const num: {
+  mapNum: typeof mapNum;
+  fractNum: typeof fractNum;
+  clampNum: typeof clampNum;
+  signNum: typeof signNum;
+  mixNum: typeof mixNum;
+  smoothstepNum: typeof smoothstepNum;
+  smootherstepNum: typeof smootherstepNum;
+};
+export default num;

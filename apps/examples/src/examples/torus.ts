@@ -10,15 +10,14 @@
 import { AsciiRendererProgram } from "react-ascii-play";
 import { mapNum } from "react-ascii-play/modules/num";
 import { drawInfo } from "react-ascii-play/modules/drawbox";
-import { createVec3, copyVec3, rotXVec3, rotYVec3, rotZVec3 } from "react-ascii-play/modules/vec3";
-import { createVec2, mulNVec2 } from "react-ascii-play/modules/vec2";
-import { sdSegment } from "react-ascii-play/modules/sdf";
+import { createVec3, rotXVec3, rotYVec3, rotZVec3 } from "react-ascii-play/modules/vec3";
+import { createVec2 } from "react-ascii-play/modules/vec2";
 
 export const settings = { fps: 60 };
 
 const density = " -=+abcdX";
 
-const { sin, floor, abs, exp, min } = Math;
+const { sin, floor, abs, exp, min, sqrt } = Math;
 
 // Lookup table for the background
 const bgMatrix = [
@@ -66,9 +65,43 @@ const torus = {
   edges,
 };
 
-const boxProj = [];
+const boxProj = vertices.map(() => createVec2(0, 0));
+
+// Per-frame edge data, so the per-cell loop only does what depends on the cell.
+// Same arithmetic as sdSegment, split at the point where it stops depending on p.
+const edgeCount = edges.length;
+const edgeAx = new Float64Array(edgeCount);
+const edgeAy = new Float64Array(edgeCount);
+const edgeBax = new Float64Array(edgeCount);
+const edgeBay = new Float64Array(edgeCount);
+const edgeBaba = new Float64Array(edgeCount);
+
+// The vec3 rotations read their input after writing their output, so they
+// can't run in place: alternate between two scratch vectors.
+const scratchA = createVec3(0, 0, 0);
+const scratchB = createVec3(0, 0, 0);
 
 const bgMatrixDim = createVec2(bgMatrix[0].length, bgMatrix.length);
+
+// Distance to the nearest edge minus thickness. Taking the square root once,
+// after the min, gives the same value as min over sqrt: sqrt and the
+// subtraction are monotonic, and Math.min still propagates NaN.
+export function torusDistance(stx: number, sty: number, thickness: number) {
+  let dd = Infinity;
+  for (let i = 0; i < edgeCount; i++) {
+    const pax = stx - edgeAx[i];
+    const pay = sty - edgeAy[i];
+    const bax = edgeBax[i];
+    const bay = edgeBay[i];
+    let h = (pax * bax + pay * bay) / edgeBaba[i];
+    if (h < 0.0) h = 0.0;
+    else if (h > 1.0) h = 1.0;
+    const dx = pax - bax * h;
+    const dy = pay - bay * h;
+    dd = min(dd, dx * dx + dy * dy);
+  }
+  return min(1e10, sqrt(dd) - thickness);
+}
 
 const torusProgram: AsciiRendererProgram = {
   pre(context) {
@@ -77,31 +110,35 @@ const torusProgram: AsciiRendererProgram = {
     const d = 2;
     const zOffs = mapNum(sin(t * 0.12), -1, 1, -2.5, -6);
     for (let i = 0; i < torus.vertices.length; i++) {
-      const v = copyVec3(torus.vertices[i]);
-      let vt = rotXVec3(v, rot.x);
-      vt = rotYVec3(vt, rot.y);
-      vt = rotZVec3(vt, rot.z);
-      boxProj[i] = mulNVec2(createVec2(vt.x, vt.y), d / (vt.z - zOffs));
+      rotXVec3(torus.vertices[i], rot.x, scratchA);
+      rotYVec3(scratchA, rot.y, scratchB);
+      const vt = rotZVec3(scratchB, rot.z, scratchA);
+      const k = d / (vt.z - zOffs);
+      boxProj[i].x = vt.x * k;
+      boxProj[i].y = vt.y * k;
+    }
+    for (let i = 0; i < edgeCount; i++) {
+      const a = boxProj[torus.edges[i][0]];
+      const b = boxProj[torus.edges[i][1]];
+      const bax = b.x - a.x;
+      const bay = b.y - a.y;
+      edgeAx[i] = a.x;
+      edgeAy[i] = a.y;
+      edgeBax[i] = bax;
+      edgeBay[i] = bay;
+      edgeBaba[i] = bax * bax + bay * bay;
     }
   },
   main(coord, context, cursor) {
     const m = min(context.cols, context.rows);
     const a = context.metrics.aspect;
 
-    const st = {
-      x: ((2.0 * (coord.x - context.cols / 2 + 0.5)) / m) * a,
-      y: (2.0 * (coord.y - context.rows / 2 + 0.5)) / m,
-    };
+    const stx = ((2.0 * (coord.x - context.cols / 2 + 0.5)) / m) * a;
+    const sty = (2.0 * (coord.y - context.rows / 2 + 0.5)) / m;
 
-    let d = 1e10;
-    const n = torus.edges.length;
     const thickness = mapNum(cursor.x, 0, context.cols, 0.001, 0.1);
     const expMul = mapNum(cursor.y, 0, context.rows, -100, -5);
-    for (let i = 0; i < n; i++) {
-      const a = boxProj[torus.edges[i][0]];
-      const b = boxProj[torus.edges[i][1]];
-      d = min(d, sdSegment(st, a, b, thickness));
-    }
+    const d = torusDistance(stx, sty, thickness);
 
     const idx = floor(exp(expMul * abs(d)) * density.length);
 

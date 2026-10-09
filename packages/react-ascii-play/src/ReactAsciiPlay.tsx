@@ -10,15 +10,18 @@ import type {
   AnimationCallback,
   AsciiRendererProgram,
 } from "./types";
-import { useEffect, useRef, useCallback, useMemo } from "react";
-import textRenderer from "./core/textrenderer";
-import canvasRenderer from "./core/canvasrenderer";
+import { useEffect, useRef, useMemo } from "react";
+import { createTextRenderer, type TextRenderer } from "./core/textrenderer";
+import { createCanvasRenderer, type CanvasRenderer } from "./core/canvasrenderer";
+import { createFrameCap } from "./core/framecap";
 import FPS from "./core/fps";
 import React from "react";
 import useIntersection from "./hooks/use-intersection";
 
 interface RendererElementProps {
   renderer: "text" | "canvas";
+  // Key events only reach an element that can take focus.
+  focusable?: boolean;
   settings?: AsciiRendererSettings;
   className?: string;
   ref?: React.RefObject<HTMLPreElement | HTMLCanvasElement | null>;
@@ -87,14 +90,102 @@ const CSSStyles: (keyof CSSStyleDeclaration)[] = [
   "textAlign",
 ];
 
+// Everything that lives from (re)start to teardown. Pausing keeps it intact.
+interface Session {
+  element: HTMLPreElement | HTMLCanvasElement;
+  settings: AsciiRendererContext["settings"];
+  renderer: TextRenderer | CanvasRenderer;
+  metrics: AsciiMetrics | null;
+  buffer: AsciiBuffer[];
+  state: ProgramState;
+  fps: FPS;
+  frameCap: ReturnType<typeof createFrameCap>;
+  booted: boolean;
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+// Compares settings two levels deep, so inline objects such as
+// `intersection` or `canvasSize` don't count as changes.
+function settingsEqual(a: object, b: object, depth = 2): boolean {
+  if (a === b) return true;
+  const ka = Object.keys(a);
+  const kb = Object.keys(b);
+  if (ka.length !== kb.length) return false;
+  for (const k of ka) {
+    const va = (a as Record<string, unknown>)[k];
+    const vb = (b as Record<string, unknown>)[k];
+    if (Object.is(va, vb)) continue;
+    if (depth > 1 && isPlainObject(va) && isPlainObject(vb) && settingsEqual(va, vb, depth - 1)) continue;
+    return false;
+  }
+  return true;
+}
+
+function getContext(session: Session): AsciiRendererContext | null {
+  const metrics = session.metrics;
+  if (!metrics) return null;
+
+  const rect = session.element.getBoundingClientRect();
+  const cols = session.settings.cols || Math.floor(rect.width / metrics.cellWidth);
+  const rows = session.settings.rows || Math.floor(rect.height / metrics.lineHeight);
+
+  return {
+    frame: session.state.frame,
+    time: session.state.time,
+    cols,
+    rows,
+    metrics,
+    width: rect.width,
+    height: rect.height,
+    settings: session.settings,
+    runtime: {
+      cycle: session.state.cycle,
+      fps: session.fps.fps,
+    },
+  };
+}
+
+function getCursor(
+  context: AsciiRendererContext,
+  pointer: AsciiRendererCursor
+): AsciiRendererCursor {
+  const { cellWidth, lineHeight } = context.metrics;
+  return {
+    x: Math.min(context.cols - 1, pointer.x / cellWidth || 0),
+    y: Math.min(context.rows - 1, pointer.y / lineHeight || 0),
+    pressed: pointer.pressed || false,
+    p: {
+      x: pointer.p?.x ? pointer.p.x / cellWidth : 0,
+      y: pointer.p?.y ? pointer.p.y / lineHeight : 0,
+      pressed: pointer.p?.pressed || false,
+    },
+  };
+}
+
+function createBuffer(length: number, settings: AsciiRendererSettings): AsciiBuffer[] {
+  return Array.from({ length }, () => ({
+    char: " ",
+    color: settings.color,
+    backgroundColor: settings.backgroundColor,
+    fontWeight: settings.fontWeight,
+  }));
+}
+
 interface ReactAsciiPlayProps {
   program: AsciiRendererProgram;
   settings: AsciiRendererSettings;
   className?: string;
   /**
+   * Drives frames instead of requestAnimationFrame. Called with the frame
+   * callback each time the loop starts (mount, restart, resume); may return a
+   * function that unsubscribes that callback. Pass a stable function: a new
+   * identity restarts the program.
    * @param callback - Function that receives the current timestamp in milliseconds
    */
-  loop?: (callback: AnimationCallback) => void;
+  loop?: (callback: AnimationCallback) => void | (() => void);
   /**
    * User data to pass to the program
    */
@@ -106,9 +197,12 @@ export function ReactAsciiPlay({
   settings,
   className,
   loop,
-  userData = {},
+  userData: userDataProp,
 }: ReactAsciiPlayProps) {
-  const [rendererReady, setRendererReady] = useState(false);
+  // Programs may store state in userData, so each instance needs its own
+  // default object, kept across renders.
+  const [ownUserData] = useState<Record<string, unknown>>(() => ({}));
+  const userData = userDataProp ?? ownUserData;
   const rendererElementRef = useRef<HTMLPreElement | HTMLCanvasElement | null>(
     null
   );
@@ -120,19 +214,25 @@ export function ReactAsciiPlay({
       rootMargin: settings.intersection?.rootMargin || "0px",
     }
   );
-  const rendererRef = useRef<typeof textRenderer | typeof canvasRenderer>(null);
-  const bufferRef = useRef<AsciiBuffer[]>([]);
-  const frameRef = useRef<number[]>([]);
-  const metricsRef = useRef<AsciiMetrics | null>(null);
-  const contextRef = useRef<AsciiRendererContext | null>(null);
-  const fpsRef = useRef<FPS | null>(null);
-  const stateRef = useRef<ProgramState | null>({
-    time: 0,
-    frame: 0,
-    cycle: 0,
-  });
+  const [pageVisible, setPageVisible] = useState(true);
+  const inView = intersectionObs ? intersectionObs.isIntersecting : true;
+  const running = pageVisible && inView;
 
-  const pointerRef = useRef<AsciiRendererCursor | null>({
+  // Keep the previous settings object while the new one is equal, so inline
+  // settings don't restart the program on every parent render.
+  const [stableSettings, setStableSettings] = useState(settings);
+  if (stableSettings !== settings && !settingsEqual(stableSettings, settings)) {
+    setStableSettings(settings);
+  }
+
+  const mergedSettings: AsciiRendererSettings = useMemo(
+    () => ({ ...defaultSettings, ...stableSettings }),
+    [stableSettings]
+  );
+
+  const sessionRef = useRef<Session | null>(null);
+  const userDataRef = useRef<Record<string, unknown>>(userData);
+  const pointerRef = useRef<AsciiRendererCursor>({
     x: 0,
     y: 0,
     pressed: false,
@@ -143,311 +243,189 @@ export function ReactAsciiPlay({
     },
   });
 
-  // Merge settings with defaults
-  const mergedSettings: AsciiRendererSettings = useMemo(
-    () => ({
-      ...defaultSettings,
-      ...settings,
-      element: rendererElementRef.current,
-    }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [settings, rendererReady]
-  );
-
-  // User data
-  const userDataRef = useRef<Record<string, unknown>>({});
-
-  // Get current context
-  const getContext = useCallback((): AsciiRendererContext | null => {
-    if (!rendererElementRef.current || !metricsRef.current) return null;
-
-    const rect = rendererElementRef.current.getBoundingClientRect();
-    const cols =
-      mergedSettings.cols ||
-      Math.floor(rect.width / metricsRef.current.cellWidth);
-    const rows =
-      mergedSettings.rows ||
-      Math.floor(rect.height / metricsRef.current.lineHeight);
-
-    return {
-      frame: stateRef.current?.frame || 0,
-      time: stateRef.current?.time || 0,
-      cols,
-      rows,
-      metrics: metricsRef.current,
-      width: rect.width,
-      height: rect.height,
-      settings: mergedSettings,
-      runtime: {
-        cycle: stateRef.current?.cycle || 0,
-        fps: fpsRef.current?.fps || 0,
-      },
-    };
-  }, [mergedSettings]);
-
-  // Get current cursor
-  const getCursor = useCallback((): AsciiRendererCursor | null => {
-    const context = getContext();
-    if (!context || !metricsRef.current) return null;
-
-    if (!pointerRef.current) {
-      pointerRef.current = {
-        x: 0,
-        y: 0,
-        pressed: false,
-        p: {
-          x: 0,
-          y: 0,
-          pressed: false,
-        },
-      };
-    }
-
-    return {
-      x: Math.min(
-        context.cols - 1,
-        pointerRef.current.x / metricsRef.current.cellWidth || 0
-      ),
-      y: Math.min(
-        context.rows - 1,
-        pointerRef.current.y / metricsRef.current.lineHeight || 0
-      ),
-      pressed: pointerRef.current.pressed || false,
-      p: {
-        x: pointerRef.current.p?.x
-          ? pointerRef.current.p.x / metricsRef.current.cellWidth
-          : 0,
-        y: pointerRef.current.p?.y
-          ? pointerRef.current.p.y / metricsRef.current.lineHeight
-          : 0,
-        pressed: pointerRef.current.p?.pressed || false,
-      },
-    };
-  }, [getContext]);
-
-  // Handle pointer events
-  const handlePointerMove = useCallback(
-    (_e: PointerEvent) => {
-      if (!rendererElementRef.current || !pointerRef.current) return;
-
-      const rect = rendererElementRef.current.getBoundingClientRect();
-      pointerRef.current = {
-        ...pointerRef.current,
-        x: _e.clientX - rect.left,
-        y: _e.clientY - rect.top,
-      };
-
-      if (program.pointerMove) {
-        const context = getContext();
-        const cursor = getCursor();
-        if (context && cursor) {
-          program.pointerMove(
-            context,
-            cursor,
-            bufferRef.current,
-            userDataRef.current,
-            _e
-          );
-        }
-      }
-    },
-    [program, getContext, getCursor]
-  ) as EventListener;
-
-  const handlePointerDown = useCallback(
-    (_e: PointerEvent) => {
-      if (!pointerRef.current) return;
-      pointerRef.current.pressed = true;
-
-      if (program.pointerDown) {
-        const context = getContext();
-        const cursor = getCursor();
-        if (context && cursor) {
-          program.pointerDown(
-            context,
-            cursor,
-            bufferRef.current,
-            userDataRef.current,
-            _e
-          );
-        }
-      }
-    },
-    [program, getContext, getCursor]
-  ) as EventListener;
-
-  const handlePointerUp = useCallback(
-    (_e: PointerEvent) => {
-      if (!pointerRef.current) return;
-      pointerRef.current.pressed = false;
-
-      if (program.pointerUp) {
-        const context = getContext();
-        const cursor = getCursor();
-        if (context && cursor) {
-          program.pointerUp(
-            context,
-            cursor,
-            bufferRef.current,
-            userDataRef.current,
-            _e
-          );
-        }
-      }
-    },
-    [program, getContext, getCursor]
-  ) as EventListener;
-
-  const handleKeyDown = useCallback(
-    (_e: KeyboardEvent) => {
-      if (program.keyDown) {
-        const context = getContext();
-        const cursor = getCursor();
-        if (context && cursor) {
-          program.keyDown(
-            context,
-            cursor,
-            bufferRef.current,
-            userDataRef.current,
-            _e
-          );
-        }
-      }
-    },
-    [program, getContext, getCursor]
-  ) as EventListener;
-
-  const handleVisibilityChange = useCallback(() => {
-    if (document.visibilityState === "hidden") {
-      if (pointerRef.current) {
-        pointerRef.current.pressed = false;
-      }
-      setRendererReady(false);
-    } else {
-      setRendererReady(true);
-    }
-  }, []) as EventListener;
-
-  // Update user data
   useEffect(() => {
     userDataRef.current = userData;
   }, [userData]);
 
-  // stop loop when component is not in view
   useEffect(() => {
-    if (!intersectionObs) return;
-    if (!intersectionObs.isIntersecting) {
-      if (pointerRef.current) {
-        pointerRef.current.pressed = false;
-      }
-      setRendererReady(false);
-    } else {
-      setRendererReady(true);
-    }
-  }, [intersectionObs]);
-
-  // get context
-  useEffect(() => {
-    if (!rendererElementRef.current) return;
-
-    const rendererElement = rendererElementRef.current;
-
-    const onResize = () => {
-      metricsRef.current = calcMetrics(rendererElement);
+    const onVisibilityChange = () => {
+      const visible = document.visibilityState !== "hidden";
+      if (!visible) pointerRef.current.pressed = false;
+      setPageVisible(visible);
     };
-
-    window.addEventListener("resize", onResize, { passive: true });
-    document.addEventListener("visibilitychange", handleVisibilityChange, {
+    onVisibilityChange();
+    document.addEventListener("visibilitychange", onVisibilityChange, {
       passive: true,
     });
-    onResize();
-    setRendererReady(true);
+    return () =>
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+  }, []);
 
-    return () => {
-      window.removeEventListener("resize", onResize);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, [handleVisibilityChange]);
-
-  // Animation loop
   useEffect(() => {
-    if (!rendererElementRef.current || !rendererReady) return;
+    if (!inView) pointerRef.current.pressed = false;
+  }, [inView]);
 
-    // Renderer element
-    const rendererElement = rendererElementRef.current;
+  // Session: created on mount and whenever program, settings or loop change.
+  // Owns the renderer, buffer and program state, and runs boot.
+  useEffect(() => {
+    const element = rendererElementRef.current;
+    if (!element) return;
 
-    // Initialize renderer
-    rendererRef.current =
-      mergedSettings.renderer === "canvas" ? canvasRenderer : textRenderer;
-
-    // Apply CSS settings to element
     for (const s of CSSStyles) {
       if (mergedSettings[s as keyof AsciiRendererSettings])
         // @ts-expect-error - TODO: check
-        rendererElement.style[s] =
-          mergedSettings[s as keyof AsciiRendererSettings];
+        element.style[s] = mergedSettings[s as keyof AsciiRendererSettings];
     }
 
-    // Initialize buffer
-    const context = contextRef.current;
+    if (!mergedSettings.allowSelect) {
+      element.style.userSelect = "none";
+      element.style.webkitUserSelect = "none";
+    }
 
-    // Calculate initial metrics
-    metricsRef.current = calcMetrics(rendererElement);
+    const session: Session = {
+      element,
+      settings: { ...mergedSettings, element },
+      renderer:
+        mergedSettings.renderer === "canvas"
+          ? createCanvasRenderer()
+          : createTextRenderer(),
+      metrics: calcMetrics(element),
+      buffer: [],
+      state: { time: 0, frame: 0, cycle: 0 },
+      fps: new FPS(),
+      frameCap: createFrameCap(mergedSettings.fps!),
+      booted: false,
+    };
+    sessionRef.current = session;
 
+    const context = getContext(session);
     if (context) {
-      bufferRef.current = new Array(context.cols * context.rows)
-        .fill(null)
-        .map(() => ({
-          char: " ",
-          color: mergedSettings.color,
-          backgroundColor: mergedSettings.backgroundColor,
-          fontWeight: mergedSettings.fontWeight,
-        }));
+      session.buffer = createBuffer(context.cols * context.rows, session.settings);
+      session.booted = true;
+      program.boot?.(context, session.buffer, userDataRef.current);
     }
 
-    // Boot program
-    if (program.boot) {
-      if (context) {
-        program.boot(context, bufferRef.current, userDataRef.current);
+    // Metrics depend on the font: re-measure on resize (zoom) and once a web
+    // font finishes loading, since the first measurement may have used a fallback.
+    const onResize = () => {
+      session.metrics = calcMetrics(element);
+    };
+    const fonts = typeof document !== "undefined" ? document.fonts : undefined;
+
+    type PointerHandlerName = "pointerMove" | "pointerDown" | "pointerUp";
+    const callProgram = (name: PointerHandlerName | "keyDown", event: Event) => {
+      const handler = program[name];
+      if (!handler) return;
+      const context = getContext(session);
+      if (!context) return;
+      const cursor = getCursor(context, pointerRef.current);
+      (handler as (...args: unknown[]) => void)(
+        context,
+        cursor,
+        session.buffer,
+        userDataRef.current,
+        event
+      );
+    };
+
+    const onPointerMove = (e: PointerEvent) => {
+      const rect = element.getBoundingClientRect();
+      pointerRef.current = {
+        ...pointerRef.current,
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      };
+      callProgram("pointerMove", e);
+    };
+    const onPointerDown = (e: PointerEvent) => {
+      pointerRef.current.pressed = true;
+      callProgram("pointerDown", e);
+    };
+    const onPointerUp = (e: PointerEvent) => {
+      pointerRef.current.pressed = false;
+      callProgram("pointerUp", e);
+    };
+    const onKeyDown = (e: KeyboardEvent) => callProgram("keyDown", e);
+
+    // The pre/canvas union loses addEventListener's typed event map.
+    const target: HTMLElement = element;
+    window.addEventListener("resize", onResize, { passive: true });
+    fonts?.addEventListener("loadingdone", onResize);
+    target.addEventListener("pointermove", onPointerMove, { passive: true });
+    target.addEventListener("pointerdown", onPointerDown, { passive: true });
+    target.addEventListener("pointerup", onPointerUp, { passive: true });
+    target.addEventListener("keydown", onKeyDown, { passive: true });
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+      fonts?.removeEventListener("loadingdone", onResize);
+      target.removeEventListener("pointermove", onPointerMove);
+      target.removeEventListener("pointerdown", onPointerDown);
+      target.removeEventListener("pointerup", onPointerUp);
+      target.removeEventListener("keydown", onKeyDown);
+      session.renderer.dispose();
+      if (sessionRef.current === session) sessionRef.current = null;
+    };
+  }, [program, mergedSettings, loop]);
+
+  // Run: drives frames while the session exists and the element is visible.
+  useEffect(() => {
+    const session = sessionRef.current;
+    if (!session || !running) return;
+
+    // Callbacks retained by an external loop must stop once this run ends.
+    const run = { active: true };
+    let rafId = 0;
+    const useExternalLoop = typeof loop === "function" && !session.settings.once;
+
+    session.frameCap.reset();
+
+    const scheduleNext = () => {
+      if (!session.settings.once && !useExternalLoop) {
+        rafId = requestAnimationFrame(animate);
       }
-    }
-
-    // Animation frame
-    let lastTime = 0;
-    const interval = 1000 / mergedSettings.fps!;
-
-    if (!fpsRef.current) {
-      fpsRef.current = new FPS();
-    }
+    };
 
     const animate = (time: number) => {
-      const delta = time - lastTime;
-      if (delta < interval) {
-        if (!mergedSettings.once) {
-          if (!(typeof loop === "function")) {
-            frameRef.current.push(requestAnimationFrame(animate));
-          }
-        }
+      if (!run.active) return;
+
+      if (!session.frameCap.shouldRender(time)) {
+        scheduleNext();
         return;
       }
 
-      const context = getContext();
-      const cursor = getCursor();
+      session.fps.update(time);
 
-      fpsRef.current?.update(time);
+      // The context is built before the state update, so programs see the
+      // previous frame's time and count.
+      const context = getContext(session);
+      if (!context) {
+        // Nothing rendered yet: retry next frame, even when running once.
+        if (!useExternalLoop) rafId = requestAnimationFrame(animate);
+        return;
+      }
 
-      if (!context || !cursor) return;
+      const length = context.cols * context.rows;
+      if (session.buffer.length !== length) {
+        session.buffer = createBuffer(length, session.settings);
+      }
+      if (!session.booted) {
+        session.booted = true;
+        program.boot?.(context, session.buffer, userDataRef.current);
+      }
 
-      // Update state
-      stateRef.current = {
+      const cursor = getCursor(context, pointerRef.current);
+      const buffer = session.buffer;
+      const userData = userDataRef.current;
+
+      session.state = {
         time,
-        frame: (stateRef.current?.frame || 0) + 1,
-        cycle: stateRef.current?.cycle || 0,
+        frame: session.state.frame + 1,
+        cycle: session.state.cycle,
       };
 
-      // Run program steps
       if (program.pre) {
-        program.pre(context, cursor, bufferRef.current, userDataRef.current);
+        program.pre(context, cursor, buffer, userData);
       }
 
       if (program.main) {
@@ -455,21 +433,19 @@ export function ReactAsciiPlay({
           const offs = j * context.cols;
           for (let i = 0; i < context.cols; i++) {
             const idx = i + offs;
-            let out: string | AsciiBuffer | void | undefined =
-              undefined;
-            out = program.main(
+            const out = program.main(
               { x: i, y: j, index: idx },
               context,
               cursor,
-              bufferRef.current,
-              userDataRef.current
+              buffer,
+              userData
             );
             if (typeof out === "object" && out !== null) {
-              bufferRef.current[idx] = { ...bufferRef.current[idx], ...out };
-            } else if (typeof out === "string" || typeof out === "undefined") {
-              bufferRef.current[idx] = {
-                ...bufferRef.current[idx],
-                char: (out as string) || " ",
+              buffer[idx] = { ...buffer[idx], ...out };
+            } else if (typeof out === "string" || out === undefined) {
+              buffer[idx] = {
+                ...buffer[idx],
+                char: out || " ",
               };
             }
           }
@@ -477,104 +453,33 @@ export function ReactAsciiPlay({
       }
 
       if (program.post) {
-        program.post(context, cursor, bufferRef.current, userDataRef.current);
+        program.post(context, cursor, buffer, userData);
       }
 
-      // Render
-      if (rendererRef.current) {
-        rendererRef.current.render(context, bufferRef.current, mergedSettings);
-      }
+      session.renderer.render(context, buffer, session.settings);
 
-      lastTime = time - (delta % interval);
-      if (!mergedSettings.once) {
-        if (!(typeof loop === "function")) {
-          frameRef.current.push(requestAnimationFrame(animate));
-        }
-      }
+      scheduleNext();
     };
 
-    if (typeof loop === "function" && !mergedSettings.once) {
-      loop(animate);
+    let unsubscribe: void | (() => void);
+    if (useExternalLoop) {
+      unsubscribe = loop(animate);
     } else {
-      frameRef.current.push(requestAnimationFrame(animate));
+      rafId = requestAnimationFrame(animate);
     }
 
-    // Add event listeners
-    rendererElement.addEventListener("pointermove", handlePointerMove, {
-      passive: true,
-    });
-    rendererElement.addEventListener("pointerdown", handlePointerDown, {
-      passive: true,
-    });
-    rendererElement.addEventListener("pointerup", handlePointerUp, {
-      passive: true,
-    });
-    rendererElement.addEventListener("keydown", handleKeyDown, {
-      passive: true,
-    });
-
-    // Handle text selection
-    if (!mergedSettings.allowSelect) {
-      rendererElement.style.userSelect = "none";
-      rendererElement.style.webkitUserSelect = "none";
-      // Use standard userSelect for all browsers
-      rendererElement.style.userSelect = "none";
-    }
-
-    const cleanupRafs = () => {
-      frameRef.current.forEach((id) => cancelAnimationFrame(id));
-      frameRef.current = [];
-    };
-
-    // Cleanup
     return () => {
-      cleanupRafs();
-      if (rendererElement) {
-        rendererElement.removeEventListener(
-          "pointermove",
-          handlePointerMove as EventListener
-        );
-        rendererElement.removeEventListener(
-          "pointerdown",
-          handlePointerDown as EventListener
-        );
-        rendererElement.removeEventListener(
-          "pointerup",
-          handlePointerUp as EventListener
-        );
-        rendererElement.removeEventListener(
-          "keydown",
-          handleKeyDown as EventListener
-        );
-      }
-
-      // clean up refs
-      bufferRef.current = [];
-      frameRef.current = [];
-      metricsRef.current = null;
-      contextRef.current = null;
-      fpsRef.current = null;
-      stateRef.current = null;
-      pointerRef.current = null;
-      userDataRef.current = {};
+      run.active = false;
+      cancelAnimationFrame(rafId);
+      if (typeof unsubscribe === "function") unsubscribe();
     };
-  }, [
-    program,
-    mergedSettings,
-    handlePointerMove,
-    handlePointerDown,
-    handlePointerUp,
-    getContext,
-    getCursor,
-    rendererReady,
-    handleVisibilityChange,
-    loop,
-  ]);
+  }, [program, mergedSettings, loop, running]);
 
   return (
     <RendererElement
       className={className}
       renderer={mergedSettings.renderer || "text"}
+      focusable={typeof program.keyDown === "function"}
       ref={rendererElementRef}
     />
   );
@@ -582,6 +487,7 @@ export function ReactAsciiPlay({
 
 const RendererElement: React.FC<RendererElementProps> = ({
   renderer,
+  focusable,
   ref,
   className,
 }) => {
@@ -592,6 +498,7 @@ const RendererElement: React.FC<RendererElementProps> = ({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ref={ref as any}
       className={className}
+      tabIndex={focusable ? 0 : undefined}
       style={{
         width: "100%",
         height: "100%",

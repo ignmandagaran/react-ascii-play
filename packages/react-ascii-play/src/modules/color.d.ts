@@ -43,18 +43,38 @@ export function rgb(
 };
 export function hex(r: number, g: number, b: number, a?: number): string;
 export function css(r: number, g: number, b: number, a?: number): string;
-export function rgb2css(rgb: number): string;
-export function rgb2hex(rgb: number): string;
-export function rgb2gray(rgb: number): number;
+export interface RGBA {
+  r: number;
+  g: number;
+  b: number;
+  a?: number;
+}
+
+/** A palette entry: the color in every supported representation. */
+export interface PaletteColor {
+  name: string;
+  int: number;
+  r: number;
+  g: number;
+  b: number;
+  a: number;
+  v: number;
+  hex: string;
+  css: string;
+}
+
+export function rgb2css(rgb: RGBA): string;
+export function rgb2hex(rgb: RGBA): string;
+export function rgb2gray(rgb: RGBA): number;
 export function int2rgb(int: number): {
   a: number;
   r: number;
   g: number;
   b: number;
 };
-export const CSS4: Record<string, number | string> = {};
-export const CSS3: Record<string, number | string> = {};
-export const CSS2: Record<string, number | string> = {};
-export const CSS1: Record<string, number | string> = {};
-export const C64: number[] = [];
-export const CGA: number[] = [];
+export const CSS4: Record<string, PaletteColor>;
+export const CSS3: Record<string, PaletteColor>;
+export const CSS2: Record<string, PaletteColor>;
+export const CSS1: Record<string, PaletteColor>;
+export const C64: PaletteColor[];
+export const CGA: PaletteColor[];

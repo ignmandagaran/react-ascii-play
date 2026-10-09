@@ -1,11 +1,13 @@
 import { defineConfig } from 'tsup';
 
-export default defineConfig({
+export default defineConfig((options) => ({
   entry: ['src/index.ts', 'src/modules/*.js'],
   format: ['esm', 'cjs'],
   dts: true,
   splitting: false,
-  clean: true,
+  // In watch mode, wiping dist would race the demo app's dev server, which
+  // resolves the package from dist while tsup rebuilds it.
+  clean: !options.watch,
   outDir: 'dist',
   treeshake: true,
   sourcemap: true,
@@ -16,4 +18,4 @@ export default defineConfig({
       js: format === 'cjs' ? '.js' : '.mjs',
     };
   },
-}); 
+}));

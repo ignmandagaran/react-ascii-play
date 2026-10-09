@@ -151,8 +151,9 @@ export function distVec3(a, b) {
 export function distSqVec3(a, b) {
   const dx = a.x - b.x;
   const dy = a.y - b.y;
+  const dz = a.z - b.z;
 
-  return dx * dx + dy * dy;
+  return dx * dx + dy * dy + dz * dz;
 }
 
 // Divides a vector by its Euclidean length and returns the quotient
