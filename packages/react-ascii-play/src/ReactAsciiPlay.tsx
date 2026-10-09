@@ -90,8 +90,6 @@ const CSSStyles: (keyof CSSStyleDeclaration)[] = [
   "textAlign",
 ];
 
-const emptyUserData: Record<string, unknown> = {};
-
 // Everything that lives from (re)start to teardown. Pausing keeps it intact.
 interface Session {
   element: HTMLPreElement | HTMLCanvasElement;
@@ -199,8 +197,12 @@ export function ReactAsciiPlay({
   settings,
   className,
   loop,
-  userData = emptyUserData,
+  userData: userDataProp,
 }: ReactAsciiPlayProps) {
+  // Programs may store state in userData, so each instance needs its own
+  // default object, kept across renders.
+  const [ownUserData] = useState<Record<string, unknown>>(() => ({}));
+  const userData = userDataProp ?? ownUserData;
   const rendererElementRef = useRef<HTMLPreElement | HTMLCanvasElement | null>(
     null
   );

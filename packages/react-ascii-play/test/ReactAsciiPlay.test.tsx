@@ -151,6 +151,23 @@ describe("ReactAsciiPlay lifecycle", () => {
     expect(stats.boot).toBe(1);
   });
 
+  test("instances without userData don't share one object", () => {
+    const seen: unknown[] = [];
+    const program: AsciiRendererProgram = {
+      boot(_context, _buffer, userData) {
+        seen.push(userData!.mark);
+        userData!.mark = "taken";
+      },
+    };
+    render(
+      <>
+        <ReactAsciiPlay program={program} settings={baseSettings} />
+        <ReactAsciiPlay program={program} settings={baseSettings} />
+      </>
+    );
+    expect(seen).toEqual([undefined, undefined]);
+  });
+
   test("unmounting stops animation frames", () => {
     const { program, stats } = makeProgram();
     render(<ReactAsciiPlay program={program} settings={baseSettings} />);
