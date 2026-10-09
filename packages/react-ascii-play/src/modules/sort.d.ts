@@ -13,3 +13,12 @@ export function sortAscii(
   fontFamily: string,
   ascending?: boolean
 ): string;
+/**
+ * Arrays are sorted into a string too. If the browser can't read canvas
+ * pixels, the input is returned unchanged, so the array comes back as is.
+ */
+export function sortAscii(
+  charSet: string[],
+  fontFamily: string,
+  ascending?: boolean
+): string | string[];

@@ -29,9 +29,10 @@ export default [
       'react-refresh': reactRefresh,
     },
     rules: {
+      // Turns off core rules TypeScript already checks and that misfire on TS
+      // syntax (no-undef on DOM/ambient types, no-redeclare on overloads).
+      ...tseslint.configs['eslint-recommended'].overrides[0].rules,
       ...tseslint.configs.recommended.rules,
-      // TypeScript already reports undefined identifiers; the core rule misfires on DOM and ambient types.
-      'no-undef': 'off',
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
       'react-refresh/only-export-components': [

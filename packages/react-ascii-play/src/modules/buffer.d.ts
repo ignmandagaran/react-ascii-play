@@ -17,6 +17,9 @@ const v = get(10, 10, buffer, cols, rows)
 /** A cell to merge: any subset of cell fields. */
 export type CellValue = Partial<AsciiBuffer>;
 
+/** A cell to store: a cell object, or a plain character (string or number). */
+export type CellOrChar = AsciiBuffer | string | number;
+
 /** Text to merge, either plain or with cell fields applied to every char. */
 export type TextValue = string | (Partial<Omit<AsciiBuffer, "char">> & { text: string });
 
@@ -28,7 +31,7 @@ export function getBuffer(
   targetRows: number
 ): Partial<AsciiBuffer> | undefined;
 export function setBuffer(
-  val: AsciiBuffer,
+  val: CellOrChar,
   x: number,
   y: number,
   target: AsciiBuffer[],
@@ -44,7 +47,7 @@ export function mergeBuffer(
   targetRows: number
 ): void;
 export function setRectBuffer(
-  val: AsciiBuffer,
+  val: CellOrChar,
   x: number,
   y: number,
   w: number,

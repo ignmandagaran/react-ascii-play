@@ -36,6 +36,10 @@ const program: AsciiRendererProgram = {
   boot(context, buffer) {
     setBuffer({ char: "x" }, 0, 0, buffer, context.cols, context.rows);
     setRectBuffer({ char: " " }, 0, 0, 4, 2, buffer, context.cols, context.rows);
+    // Plain characters are accepted as cell values too.
+    setBuffer("x", 1, 0, buffer, context.cols, context.rows);
+    setBuffer(7, 2, 0, buffer, context.cols, context.rows);
+    setRectBuffer("#", 0, 1, 4, 1, buffer, context.cols, context.rows);
   },
   main(coord, context, cursor) {
     const p: Vec2 = createVec2(coord.x / context.cols, coord.y / context.rows);
@@ -72,11 +76,12 @@ async function loaders() {
 }
 
 const sorted: string = sortAscii(" .:-=+*#%@", "monospace");
+const sortedFromArray: string | string[] = sortAscii([" ", ".", "#"], "monospace", true);
 const sizes = [measureString("a\nb").maxWidth, wrapString("a b c", 2).numLines];
 const nums = [num.mapNum(1, 0, 1, 0, 2), mapNum(1, 0, 1, 0, 2), clampNum(2, 0, 1), modNum(-1, 3)];
 const colors = [rgb(1, 2, 3).r, hex(1, 2, 3), css(1, 2, 3), rgb2hex({ r: 1, g: 2, b: 3 }), rgb2gray(int2rgb(0xff0000)), CSS1.black.v, CSS2.orange.int, CSS3.red.name];
 const v3: Vec3 = createVec3(1, 2, 3);
 const distance = distSqVec3(v3, v3);
 
-export const usage = [settings, palette, modes, program, loaders, sorted, sizes, nums, colors, distance];
+export const usage = [settings, palette, modes, program, loaders, sorted, sortedFromArray, sizes, nums, colors, distance];
 export const element = <ReactAsciiPlay program={program} settings={settings} />;
