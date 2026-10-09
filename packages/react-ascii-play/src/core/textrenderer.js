@@ -84,7 +84,7 @@ export function createTextRenderer() {
 			// Undocumented feature:
 			// possible to inject some custom HTML (for example <a>) into the renderer.
 			// It can be inserted before the char or after the char (beginHTML, endHTML)
-			// and this is a very hack…
+			// and this is a very hack… It is written unescaped: trusted markup only.
 			if (currCell.beginHTML) {
 				if (tagIsOpen) {
 					html += '</span>'
@@ -108,11 +108,11 @@ export function createTextRenderer() {
 				if (c) css += 'color:' + c + ';'
 				if (b) css += 'background:' + b + ';'
 				if (w) css += 'font-weight:' + w + ';'
-				if (css) css = ' style="' + css + '"'
+				if (css) css = ' style="' + escapeAttribute(css) + '"'
 				html += '<span' + css + '>'
 				tagIsOpen = true
 			}
-			html += currCell.char
+			html += escapeText(currCell.char)
 			prevCell = currCell
 
 			// Add closing tag, in case
@@ -134,6 +134,22 @@ export function createTextRenderer() {
 	},
 	dispose: () => {},
 	}
+}
+
+// Rows are written with innerHTML, so text that may come from user input
+// (chars, colors) must not be parsed as markup.
+const textEscapes = { '&': '&amp;', '<': '&lt;', '>': '&gt;' }
+const attributeEscapes = { '&': '&amp;', '<': '&lt;', '"': '&quot;' }
+
+function escapeText(char) {
+	const s = String(char)
+	// Cells are almost always one character: avoid the regex for those.
+	if (s.length === 1) return textEscapes[s] || s
+	return s.replace(/[&<>]/g, (c) => textEscapes[c])
+}
+
+function escapeAttribute(value) {
+	return value.replace(/[&<"]/g, (c) => attributeEscapes[c])
 }
 
 // Compares two cells

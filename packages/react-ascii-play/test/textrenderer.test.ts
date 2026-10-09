@@ -39,6 +39,35 @@ describe("text renderer", () => {
     expect(pre.children[0].innerHTML).toBe('<span>a</span><span style="color:red;font-weight:700;">bc</span>');
   });
 
+  test("renders markup characters as text", () => {
+    const pre = document.createElement("pre");
+    const ctx = makeContext(pre, 4, 1);
+    const buffer: AsciiBuffer[] = [{ char: "<" }, { char: "&" }, { char: ">" }, { char: "<img src=x onerror=alert(1)>" }];
+    createTextRenderer().render(ctx, buffer, ctx.settings);
+    expect(pre.querySelector("img")).toBeNull();
+    expect(rowsOf(pre)).toEqual(["<&><img src=x onerror=alert(1)>"]);
+  });
+
+  test("keeps style values inside the style attribute", () => {
+    const pre = document.createElement("pre");
+    const ctx = makeContext(pre, 1, 1);
+    const buffer: AsciiBuffer[] = [{ char: "a", color: 'red" onmouseover="alert(1)' }];
+    createTextRenderer().render(ctx, buffer, ctx.settings);
+    const span = pre.querySelector("span span") as HTMLElement;
+    expect(span.getAttributeNames()).toEqual(["style"]);
+    expect(span.textContent).toBe("a");
+  });
+
+  test("still writes beginHTML and endHTML as markup", () => {
+    const pre = document.createElement("pre");
+    const ctx = makeContext(pre, 1, 1);
+    const buffer: (AsciiBuffer & { beginHTML?: string; endHTML?: string })[] = [
+      { char: "a", beginHTML: '<a href="#x">', endHTML: "</a>" },
+    ];
+    createTextRenderer().render(ctx, buffer, ctx.settings);
+    expect(pre.querySelector("a")?.textContent).toBe("a");
+  });
+
   test("rewrites only the rows that changed", () => {
     const pre = document.createElement("pre");
     const ctx = makeContext(pre, 3, 3);
