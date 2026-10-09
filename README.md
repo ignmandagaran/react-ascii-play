@@ -22,6 +22,8 @@ npm install react-ascii-play
 yarn add react-ascii-play
 # or
 pnpm add react-ascii-play
+# or
+bun add react-ascii-play
 ```
 
 ## Quick Start
