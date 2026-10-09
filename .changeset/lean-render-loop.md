@@ -1,5 +1,5 @@
 ---
-"react-ascii-play": patch
+"react-ascii-play": minor
 ---
 
 Faster rendering with identical output, and a fixed render loop lifecycle.
