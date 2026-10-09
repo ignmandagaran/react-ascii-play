@@ -45,7 +45,7 @@ CI (`.github/workflows/ci.yml`) runs lint, typecheck, test and build. Run all fo
 
 ## Releases
 
-Changesets. Add one per user-facing library change: `bunx changeset`. Behaviour changes are `minor` while the package is 0.x. The base branch is `master`.
+Changesets. Add one per user-facing library change: `bunx changeset`. Behaviour changes are `minor` while the package is 0.x. The base branch is `main`.
 
 ## Git
 
