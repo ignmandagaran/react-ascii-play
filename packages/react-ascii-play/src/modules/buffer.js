@@ -13,11 +13,21 @@ const v = get(10, 10, buffer, cols, rows)
 
 */
 
+// Index of the cell at x, y, or -1 when outside the buffer. Coordinates are
+// often fractional (the cursor is): they select the cell they fall in. Without
+// flooring, a fractional or NaN index adds a stray property to the array.
+function cellIndex(x, y, targetCols, targetRows) {
+  x = Math.floor(x);
+  y = Math.floor(y);
+  // Written so NaN fails too.
+  if (!(x >= 0 && x < targetCols && y >= 0 && y < targetRows)) return -1;
+  return x + y * targetCols;
+}
+
 // Safe get function to read from a buffer
 export function getBuffer(x, y, target, targetCols, targetRows) {
-  if (x < 0 || x >= targetCols) return {};
-  if (y < 0 || y >= targetRows) return {};
-  const i = x + y * targetCols;
+  const i = cellIndex(x, y, targetCols, targetRows);
+  if (i < 0) return {};
   return target[i];
 }
 
@@ -28,16 +38,14 @@ export function getBuffer(x, y, target, targetCols, targetRows) {
 // { char, color, backgroundColor, fontWeight }
 // which can overwrite the buffer (set) or partially merged (merge)
 export function setBuffer(val, x, y, target, targetCols, targetRows) {
-  if (x < 0 || x >= targetCols) return;
-  if (y < 0 || y >= targetRows) return;
-  const i = x + y * targetCols;
+  const i = cellIndex(x, y, targetCols, targetRows);
+  if (i < 0) return;
   target[i] = val;
 }
 
 export function mergeBuffer(val, x, y, target, targetCols, targetRows) {
-  if (x < 0 || x >= targetCols) return;
-  if (y < 0 || y >= targetRows) return;
-  const i = x + y * targetCols;
+  const i = cellIndex(x, y, targetCols, targetRows);
+  if (i < 0) return;
 
   // Flatten:
   const cell = typeof target[i] == "object" ? target[i] : { char: target[i] };

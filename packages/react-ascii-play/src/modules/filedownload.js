@@ -16,7 +16,8 @@ const mimeTypes = {
   js: "text/javascript",
   txt: "text/plain",
   png: "image/png",
-  jpg: "text/jpeg",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
 };
 
 // For text elements

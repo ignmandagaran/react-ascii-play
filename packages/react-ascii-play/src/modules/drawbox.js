@@ -274,9 +274,9 @@ export function drawBox(text, style, target, targetCols, targetRows) {
   mergeTextBuffer(
     {
       text,
-      color: style.color,
-      backgroundColor: style.backgroundColor,
-      fontWeight: style.weght,
+      color: s.color,
+      backgroundColor: s.backgroundColor,
+      fontWeight: s.fontWeight,
     },
     x1 + s.paddingX,
     y1 + s.paddingY,

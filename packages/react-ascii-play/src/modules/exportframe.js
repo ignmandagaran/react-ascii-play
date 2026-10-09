@@ -36,6 +36,10 @@ export function exportFrame(context, filename, from = 1, to = from) {
 
   // Filename chunks
   const m = filename.match(/(.+)\.([0-9a-z]+$)/i);
+  if (!m) {
+    console.warn("exportframe.js: Filename needs an extension, e.g. frame.png.");
+    return;
+  }
   const base = m[1];
   const ext = m[2];
 
