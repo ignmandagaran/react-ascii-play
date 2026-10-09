@@ -428,8 +428,7 @@ export function ReactAsciiPlay({
           const offs = j * context.cols;
           for (let i = 0; i < context.cols; i++) {
             const idx = i + offs;
-            let out: string | AsciiBuffer | void | undefined = undefined;
-            out = program.main(
+            const out = program.main(
               { x: i, y: j, index: idx },
               context,
               cursor,
@@ -438,10 +437,10 @@ export function ReactAsciiPlay({
             );
             if (typeof out === "object" && out !== null) {
               buffer[idx] = { ...buffer[idx], ...out };
-            } else if (typeof out === "string" || typeof out === "undefined") {
+            } else if (typeof out === "string" || out === undefined) {
               buffer[idx] = {
                 ...buffer[idx],
-                char: (out as string) || " ",
+                char: out || " ",
               };
             }
           }
