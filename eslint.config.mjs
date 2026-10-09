@@ -2,7 +2,7 @@ import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
-import * as tseslint from '@typescript-eslint/eslint-plugin'
+import tseslint from '@typescript-eslint/eslint-plugin'
 import tsParser from '@typescript-eslint/parser'
 
 export default [
@@ -30,6 +30,8 @@ export default [
     },
     rules: {
       ...tseslint.configs.recommended.rules,
+      // TypeScript already reports undefined identifiers; the core rule misfires on DOM and ambient types.
+      'no-undef': 'off',
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
       'react-refresh/only-export-components': [
